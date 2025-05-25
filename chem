@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Structure & Bonding: All-in-One Course</title>
+
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Chart.js for Plotting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Zoom Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
+    
+    <!-- D3.js (used in radial plots) -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Three.js for 3D Orbitals -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <style>
+        /* --- COMBINED CSS FROM ALL FILES --- */
+        /* General Body & Layout - From Landing Page */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.6; margin: 0; padding: 0; background-color: #f0f2f5; color: #333;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        .site-header { /* Renamed from course-header for clarity in SPA context */
+            background-color: #1abc9c; color: white; padding: 20px 30px; text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1000; /* Ensure header stays on top */
+        }
+        .site-header h1 { margin: 0; font-size: 2.2em; color: white; }
+        .site-header p.subtitle { margin: 5px 0 0; font-size: 1.1em; color: #f0f8ff; }
+
+        .site-main-content { /* Container for either module grid or module content */
+            flex: 1; padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box;
+        }
+
+        /* Module Grid (Landing Page View) */
+        #module-grid-view h2 {
+            text-align: center; color: #2c3e50; font-size: 1.8em; margin-bottom: 30px;
+            border-bottom: 2px solid #1abc9c; padding-bottom: 10px; display: inline-block;
+            left: 50%; position: relative; transform: translateX(-50%);
+        }
+        .module-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;
+        }
+        .module-card {
+            background-color: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.07);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex; flex-direction: column;
+        }
+        .module-card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .module-card h3 { color: #16a085; font-size: 1.4em; margin-top: 0; margin-bottom: 10px; }
+        .module-card p { font-size: 0.95em; color: #555; margin-bottom: 15px; flex-grow: 1; }
+        .module-link-btn {
+            display: inline-block; background-color: #1abc9c; color: white; padding: 10px 18px;
+            text-decoration: none; border-radius: 5px; font-weight: 500; text-align: center;
+            transition: background-color 0.2s ease; margin-top: auto; cursor: pointer; border: none;
+        }
+        .module-link-btn:hover { background-color: #16a085; }
+
+        /* Styles for Individual Module Views */
+        .module-content-view { display: none; /* Hidden by default */ }
+        .module-content-view .course-header { /* Header specific to module pages, slightly smaller */
+            background-color: #1abc9c; color: white; padding: 15px 30px; text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;
+        }
+        .module-content-view .course-header h1 { font-size: 1.8em; color: white; margin:0; }
+
+        .module-content-view .course-main { display: flex; flex: 1; }
+        .module-content-view .course-nav {
+            width: 250px; background-color: #f8f9fa; padding: 20px;
+            border-right: 1px solid #dee2e6; flex-shrink: 0;
+        }
+        /* Nav for quiz section page */
+        .module-content-view .quiz-content-wrapper .course-nav { width: 280px; } 
+        
+        .module-content-view .course-nav ul { list-style-type: none; padding: 0; margin: 0; }
+        .module-content-view .course-nav li a {
+            display: block; padding: 10px 15px; text-decoration: none; color: #343a40;
+            border-radius: 4px; margin-bottom: 5px;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .module-content-view .course-nav li a:hover { background-color: #e9ecef; color: #007bff; }
+        .module-content-view .course-nav li a.active { background-color: #1abc9c; color: white; font-weight: bold; }
+
+        .module-content-view .course-content, .module-content-view .quiz-content-wrapper {
+            flex: 1; padding: 25px; background-color: #fff; overflow-y: auto; min-width: 0;
+            /* max-width: 900px; margin: 0 auto; /* For single column pages like formula summary */
+        }
+        .module-content-view #module-content-formulas_summary .course-content { max-width: 900px; margin: 0 auto; }
+
+
+        .module-content-view .course-page { display: none; }
+        .module-content-view .course-page.active { display: block; animation: fadeIn 0.3s ease-out; }
+        
+        .module-content-view .quiz-section-page { display: none; }
+        .module-content-view .quiz-section-page.active { display: block; animation: fadeIn 0.3s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .module-content-view h2, .module-content-view h3, .module-content-view h4 { color: #2c3e50; margin-top: 1.5em; margin-bottom: 0.5em; }
+        .module-content-view h2 { border-bottom: 2px solid #1abc9c; padding-bottom: 0.3em; font-size: 1.8em; }
+        .module-content-view h3 { font-size: 1.4em; color: #16a085;}
+        .module-content-view h4 { font-size: 1.15em; color: #2980b9;}
+        
+        .module-content-view .quiz-section-page h2 { /* Quiz section title */
+            color: #2c3e50; margin-top: 0; margin-bottom: 1.5em; 
+            padding-bottom: 0.3em; font-size: 1.6em; text-align: center;
+            border-bottom: 2px solid #1abc9c;
+        }
+
+
+        .katex-display { margin: 1em auto !important; overflow-x: auto; overflow-y: hidden; padding: 0.8em 1em; 
+            background-color: #f9f9f9; border: 1px solid #eee; border-radius: 4px; text-align: center; max-width: 90%;
+        }
+        .katex { font-size: 1.1em; line-height: normal; }
+        /* From formula summary page, katex in list */
+        .formula-list-item .formula-katex .katex-display { margin: 0 !important; text-align: left !important; padding: 0.5em 0; }
+
+
+        code { font-family: "Lucida Console", Monaco, monospace; background-color: #eef1f3; padding: 0.2em 0.4em; border-radius: 3px; font-size: 0.9em; }
+        pre code { display: block; padding: 1em; overflow-x: auto; }
+
+        .interactive-section { margin-top: 20px; padding: 15px; background-color: #e8f6f3; border: 1px solid #1abc9c; border-radius: 5px; }
+        .interactive-section h3 { margin-top: 0; color: #16a085; }
+        /* From orbital shapes page */
+        .module-content-view #module-content-orbital_shapes .interactive-section { border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        button.general-button-style { /* Added a class for general buttons if needed */
+            background-color: #1abc9c; color: white; border: none; padding: 10px 15px; margin: 5px;
+            border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: background-color 0.3s ease;
+        }
+        button.general-button-style:hover { background-color: #16a085; }
+        button.general-button-style.active { background-color: #117a65; font-weight: bold; }
+
+        ul, ol { padding-left: 20px; margin-bottom: 1em; }
+        li { margin-bottom: 0.5em; }
+
+        .note { background-color: #fff3cd; border-left: 4px solid #ffeeba; padding: 10px 15px; margin: 15px 0; border-radius: 4px; }
+        .note strong { color: #856404; }
+        
+        .formula-box-katex { /* From (100).html */
+            background-color: #ebf8ff; border: 1px solid #bee3f8; padding: 1em; margin: 1.5em auto;
+            border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: center; max-width: 80%;
+        }
+        .formula-box-katex .tooltip-katex {
+            display: block; font-size: 0.85em; color: #555; margin-top: 0.5em;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        /* Styles from Radial Plots page */
+        .interactive-controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 15px; }
+        .interactive-controls label { font-weight: 500; margin-right: 5px; }
+        .interactive-controls input[type="range"] { flex-grow: 1; max-width: 200px; cursor: pointer; }
+        .interactive-controls span { min-width: 30px; text-align: center; font-family: monospace; font-weight: bold; }
+        .interactive-controls .orbital-type-display { font-style: italic; color: #117a65; font-weight: bold; }
+        .plot-container {
+            position: relative; width: 100%; max-width: 700px; height: 420px; margin: 10px auto; padding: 10px;
+            background-color: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 6px; cursor: grab;
+        }
+        .plot-container:active { cursor: grabbing; }
+        #module-content-analyzing_wavefunctions .plot-container { margin: 20px 0; max-width: 700px; margin-left: auto; margin-right: auto; }
+        #module-content-analyzing_wavefunctions #resultsArea { margin-top: 15px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }
+        #module-content-analyzing_wavefunctions #resultsArea p { margin: 5px 0; }
+
+
+        .info-table-container {
+            margin-top: 20px; max-width: 700px; margin-left: auto; margin-right: auto; background-color: #fff;
+            border-radius: 8px; padding: 15px; box-shadow: 0 3px 8px rgba(0,0,0,0.07); border: 1px solid #e0e0e0;
+        }
+        .info-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .info-table th, .info-table td { border-bottom: 1px solid #e8e8e8; padding: 10px 12px; text-align: left; }
+        .info-table th { background-color: transparent; color: #1abc9c; font-weight: 600; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+        .info-table tr:last-child th, .info-table tr:last-child td { border-bottom: none; }
+        .info-table td { color: #4a5568; }
+        .info-table tr:hover td { background-color: #f7f9fc; }
+        
+        /* Styles from Orbital Shapes page */
+        .controls-flex { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 15px; }
+        .controls-flex label { font-weight: 500; margin-right: 5px; }
+        .controls-flex select { padding: 8px; border-radius: 4px; border: 1px solid #ccc; background-color: white; min-width: 80px; cursor: pointer; }
+        .orbital-type-display { font-style: italic; color: #117a65; font-weight: bold; margin-left: 10px;}
+        .visualization-area-3d { 
+            position: relative; width: 100%; max-width: 500px; height: 400px; margin: 20px auto;
+            background-color: #f0f0f0; border: 1px solid #d0d0d0; border-radius: 6px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .visualization-area-3d canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+        .visualization-area-3d canvas:active { cursor: grabbing; }
+        .visualization-placeholder-text { color: #555; font-style: italic; text-align: center; padding: 20px; }
+        .orbital-descriptions { margin-top: 1.5em; }
+        .orbital-descriptions p { font-size: 0.95em; margin-bottom: 0.7em; }
+        .orbital-descriptions strong { color: #16a085; }
+
+        /* Styles from Analyzing Wavefunctions page (99).html) */
+        #module-content-analyzing_wavefunctions table { width: 100%; border-collapse: collapse; margin-top: 1em; table-layout: auto; }
+        #module-content-analyzing_wavefunctions th, #module-content-analyzing_wavefunctions td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top;}
+        #module-content-analyzing_wavefunctions th { background-color: #f2f2f2; }
+        #module-content-analyzing_wavefunctions button { /* specific to this module's buttons */
+            background-color: #1abc9c; color: white; border: none; padding: 10px 15px; margin: 5px;
+            border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: background-color 0.3s ease;
+        }
+        #module-content-analyzing_wavefunctions button:hover { background-color: #16a085; }
+        #module-content-analyzing_wavefunctions button.active { background-color: #117a65; font-weight: bold; }
+
+
+        /* Styles from Formula Summary page */
+        .formula-list-item {
+            background-color: #f9f9fa; border: 1px solid #e0e0e0; border-left: 5px solid #1abc9c;
+            padding: 15px 20px; margin-bottom: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+        }
+        .formula-list-item .formula-katex { flex-grow: 1; text-align: left; }
+        .formula-list-item .formula-tooltip {
+            font-size: 0.9em; color: #555; margin-left: 20px; font-style: italic;
+            text-align: right; flex-shrink: 0; max-width: 40%;
+        }
+        @media (max-width: 600px) {
+            .formula-list-item { flex-direction: column; align-items: flex-start; }
+            .formula-list-item .formula-tooltip { margin-left: 0; margin-top: 8px; text-align: left; max-width: 100%; }
+        }
+        
+        /* Styles from Comprehensive Quiz page */
+        .module-content-view #module-content-comprehensive_quiz .course-nav { /* Sidebar for quiz sections */
+            width: 280px; background-color: #f8f9fa; padding: 20px;
+            border-right: 1px solid #dee2e6; flex-shrink: 0;
+        }
+        .module-content-view #module-content-comprehensive_quiz .course-nav h3 {
+            margin-top: 0; margin-bottom: 10px; font-size: 1.1em; color: #4a5568;
+            padding-bottom: 5px; border-bottom: 1px solid #e0e0e0;
+        }
+        .module-content-view #module-content-comprehensive_quiz .quiz-content-wrapper {
+            flex: 1; padding: 25px; background-color: #fff;
+            max-width: 850px; margin: 0 auto; border-radius: 8px;
+        }
+        .quiz-question-container { margin-bottom: 2em; }
+        .question-paragraph { background-color: #f9f9f9; border: 1px solid #eee; padding: 10px 15px; margin-bottom: 1.5em; border-radius: 4px; font-size: 0.95em; }
+        .question-text { font-size: 1.15em; font-weight: 600; margin-bottom: 1.5em; color: #333; }
+        .quiz-options { list-style: none; padding: 0; margin: 0; }
+        .quiz-options li { margin-bottom: 0.8em; }
+        .quiz-options button {
+            display: block; width: 100%; padding: 12px 15px; text-align: left; font-size: 1em;
+            background-color: #f8f9fa; border: 1px solid #d1d5db; color: #374151; cursor: pointer;
+            border-radius: 6px; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+        .quiz-options button:hover:not(:disabled) { background-color: #e9ecef; border-color: #adb5bd; transform: translateY(-1px); }
+        .quiz-options button:disabled { cursor: not-allowed; opacity: 0.7; }
+        .quiz-options button.selected { border-color: #1abc9c; box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.3); }
+        .quiz-options button.correct { background-color: #d1e7dd !important; border-color: #a3cfbb !important; color: #0f5132 !important; font-weight: bold; }
+        .quiz-options button.incorrect { background-color: #f8d7da !important; border-color: #f5c2c7 !important; color: #842029 !important; }
+        .solution-area { margin-top: 1.5em; padding: 15px; background-color: #e9f7ef; border: 1px solid #a6e9d5; border-radius: 6px; }
+        .solution-area h4 { margin-top: 0; color: #0f5132; font-size: 1.1em; margin-bottom: 0.5em; }
+        .solution-area p, .solution-area div { font-size: 0.95em; color: #333; margin-bottom: 0.5em; word-wrap: break-word; }
+        .feedback-text { font-weight: bold; margin-bottom: 1em; font-size: 1.05em; }
+        .feedback-text.correct { color: #155724; }
+        .feedback-text.incorrect { color: #721c24; }
+        .quiz-navigation { margin-top: 2em; text-align: right; }
+        .quiz-nav-btn {
+            padding: 10px 20px; font-size: 1em; font-weight: 500; color: white; background-color: #1abc9c;
+            border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease;
+        }
+        .quiz-nav-btn:hover { background-color: #16a085; }
+        .quiz-nav-btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .quiz-score-container { text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 6px; margin-top:1em;}
+        .quiz-score-container h3 { font-size: 1.5em; color: #1abc9c;}
+        .quiz-score-container p { font-size: 1.1em; }
+
+        .back-to-modules-container { margin-bottom: 20px; text-align: left; }
+
+        /* Footer */
+        .site-footer { /* Renamed from footer for clarity */
+            text-align: center; padding: 1.5rem; margin-top: auto; font-size: 0.9rem;
+            color: #718096; border-top: 1px solid #dee2e6; background-color: #f0f2f5;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1>Atomic Structure & Bonding</h1>
+        <p class="subtitle">Your All-in-One Learning Portal</p>
+    </header>
+
+    <main class="site-main-content">
+        <!-- MODULE GRID VIEW (LANDING PAGE) -->
+        <div id="module-grid-view">
+            <h2>Course Modules</h2>
+            <div class="module-grid">
+                <div class="module-card">
+                    <h3>1. Schrödinger Model & Wave Functions</h3>
+                    <p>Introduction to the modern atomic model, the Schrödinger equation, and the fundamental concepts of wave functions.</p>
+                    <button class="module-link-btn" data-module="schrodinger_wavefunctions">Go to Module 1</button>
+                </div>
+                <div class="module-card">
+                    <h3>2. Radial Plot Visualizations</h3>
+                    <p>Explore interactive plots of $\Psi$, $\Psi^2$, and RDF for various atomic orbitals.</p>
+                    <button class="module-link-btn" data-module="radial_plots">Go to Module 2</button>
+                </div>
+                <div class="module-card">
+                    <h3>3. Orbital Shapes & Quantum Numbers</h3>
+                    <p>Understand quantum numbers and visualize 3D shapes of s, p, and d orbitals.</p>
+                    <button class="module-link-btn" data-module="orbital_shapes">Go to Module 3</button>
+                </div>
+                <div class="module-card">
+                    <h3>4. Analyzing Radial Wavefunctions</h3>
+                    <p>A deeper dive into finding nodes and extrema for 2s and 3s orbitals.</p>
+                    <button class="module-link-btn" data-module="analyzing_wavefunctions">Go to Module 4</button>
+                </div>
+                <div class="module-card">
+                    <h3>5. Key Formulas Summary</h3>
+                    <p>A concise reference sheet of important formulas in atomic structure and bonding.</p>
+                    <button class="module-link-btn" data-module="formulas_summary">Go to Module 5</button>
+                </div>
+                <div class="module-card">
+                    <h3>6. Comprehensive Quiz</h3>
+                    <p>Test your understanding with a comprehensive quiz, including advanced problems.</p>
+                    <button class="module-link-btn" data-module="comprehensive_quiz">Go to Module 6</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE CONTENT VIEWS (Initially Hidden) -->
+        <!-- Module 1: Schrödinger Model & Wave Functions (from (100).html) -->
+        <div id="module-content-schrodinger_wavefunctions" class="module-content-view">
+            <div class="back-to-modules-container"><button class="module-link-btn back-to-modules-btn">← Back to Modules</button></div>
+            <div class="course-header"><h1>Atomic Tutor: Schrödinger Model & Wave Functions</h1></div>
+            <div class="course-main">
+                <nav class="course-nav">
+                    <ul>
+                        <li><a href="#" class="course-nav-link" data-page="page-schrodinger">Schrödinger Model</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-wavefunction-concepts">Wave Function Concepts</a></li>
+                    </ul>
+                </nav>
+                <div class="course-content">
+                    <div id="page-schrodinger" class="course-page">
+                        <h2>Atomic Structure in Schrödinger Model</h2>
+                        <p>The modern model of the atom describes electrons not as particles orbiting the nucleus in fixed paths, but as wave-functions existing in regions of probability called orbitals. The behavior of these electrons is governed by the time-independent Schrödinger equation:</p>
+                        <div class="formula-box-katex">$$ \hat{H}\Psi = E\Psi $$ <span class="tooltip-katex">Where $\hat{H}$ is the Hamiltonian operator, $\Psi$ is the wave function, and $E$ is the energy eigenvalue.</span></div>
+                        <p>The Hamiltonian operator ($\hat{H}$) incorporates several energy terms:</p>
+                        <ul><li>Kinetic energy of electrons</li><li>Kinetic energy of nuclei (often simplified using Born-Oppenheimer approximation)</li><li>Potential energy of nucleus-electron attraction</li><li>Potential energy of electron-electron repulsion</li><li>Potential energy of nucleus-nucleus repulsion (constant for a given geometry)</li></ul>
+                        <p>Solving this complex differential equation yields specific solutions:</p>
+                        <ul><li><b>Allowed Energy States (E):</b> These are the quantized energy levels that electrons can occupy within the atom. Each $E$ corresponds to a specific state.</li><li><b>Wave Functions ($\Psi$):</b> For each allowed energy $E$, there is a corresponding wave function $\Psi$. This mathematical function contains all the information about an electron in that state, such as its spatial distribution and momentum.</li></ul>
+                        <p>The solutions, $\Psi$, are often characterized by a set of quantum numbers (n, l, m<sub>l</sub>), which arise naturally from the mathematical constraints of solving the equation.</p>
+                    </div>
+                    <div id="page-wavefunction-concepts" class="course-page">
+                        <h2>Wave Function Concepts ($\Psi$, $\Psi^2$, Radial Probability)</h2>
+                        <p>The wave function ($\Psi$), obtained from solving the Schrödinger equation, is a cornerstone for understanding atomic and molecular structure. Its value can be positive, negative, or even complex, though for many common representations of atomic orbitals, we deal with its real part.</p>
+                        <h3>$\Psi$ (The Wave Function)</h3>
+                        <p>The wave function itself is a mathematical amplitude. Key points:</p>
+                        <ul><li>It describes the wave-like state of an electron.</li><li>The sign (+ or -) of $\Psi$ (its phase) is critically important for chemical bonding. When atomic orbitals combine to form molecular orbitals, their phases determine whether the interference is constructive (leading to a bond) or destructive.</li><li>$\Psi$ itself does not directly represent the probability of finding an electron at a particular point.</li></ul>
+                        <h3>$\Psi^2$ (Probability Density)</h3>
+                        <p>To get a physically meaningful probability, we consider the square of the magnitude of the wave function, $|\Psi|^2$ (or simply $\Psi^2$ if $\Psi$ is real). </p>
+                        <ul><li>$\Psi^2$ is always real and non-negative (i.e., $\Psi^2 \ge 0$).</li><li>It represents the <b>probability density</b>: the probability of finding the electron <i>per unit volume</i> at a specific point (x, y, z) in space.</li><li>A higher value of $\Psi^2$ at a point means a greater likelihood of finding the electron in a small volume element around that point.</li><li>Visualizing regions of high $\Psi^2$ gives us the familiar "shapes" of atomic orbitals (s, p, d, etc.).</li></ul>
+                        <div class="formula-box-katex">$$ \text{Probability Density} = \Psi^2 $$ <span class="tooltip-katex">Probability of finding an electron per unit volume at a point.</span></div>
+                        <h3>$4\pi r^2 \Psi^2 dr$ (Radial Probability Distribution Function)</h3>
+                        <p>While $\Psi^2$ tells us the probability density at a specific point, we are often interested in the probability of finding an electron at a certain <i>distance</i> $r$ from the nucleus, irrespective of direction.</p>
+                        <ul><li>This is given by the <b>Radial Distribution Function (RDF)</b>. For a spherically symmetric potential (like in a hydrogen atom), we consider the probability of finding the electron within a thin spherical shell of radius $r$ and thickness $dr$.</li><li>The volume of this shell is $4\pi r^2 dr$.</li><li>The radial probability is then (Volume of shell) $\times$ (Average $\Psi^2$ in that shell). If $\Psi$ depends only on $r$ (like $R(r)$ for s-orbitals), this simplifies. More generally, we integrate $|\Psi(r, \theta, \phi)|^2$ over all angles for a fixed $r$.</li><li>The RDF is often written as $P(r)dr = r^2 |R(r)|^2 dr$ (ignoring the $4\pi$ for relative plots), where $R(r)$ is the radial part of the wave function.</li><li>Plots of $r^2R(r)^2$ (or $4\pi r^2\Psi^2$) versus $r$ show peaks where the electron is most likely to be found at that distance.</li></ul>
+                        <div class="formula-box-katex">$$ P(r)dr \propto r^2 R(r)^2 dr $$ <span class="tooltip-katex">Probability of finding an electron in a spherical shell of radius $r$ and thickness $dr$.</span></div>
+                        <div class="note"><strong>Key Distinction:</strong> $\Psi^2$ gives probability density <i>at a point</i>. The RDF ($r^2R(r)^2$) gives the probability of being found <i>at a distance r</i> summed over all directions. This is why for an s-orbital, $\Psi^2$ is maximum at the nucleus ($r=0$), but the RDF is zero at $r=0$ (due to the $r^2$ factor representing the vanishing volume of the shell at the nucleus) and peaks at some $r > 0$.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: Radial Plots (from code - 2025-05-25T165438.761.html) -->
+        <div id="module-content-radial_plots" class="module-content-view">
+            <div class="back-to-modules-container"><button class="module-link-btn back-to-modules-btn">← Back to Modules</button></div>
+            <div class="course-header"><h1>Atomic Tutor: Radial Plots (Ψ, Ψ², RDF)</h1></div>
+            <div class="course-main">
+                <nav class="course-nav">
+                    <ul>
+                        <li><a href="#" class="course-nav-link" data-page="page-psi-plot">Wave Function ($\Psi$) Plot</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-psi2-plot">Probability Density ($\Psi^2$) Plot</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-rdf-plot">Radial Distribution (RDF) Plot</a></li>
+                    </ul>
+                </nav>
+                <div class="course-content">
+                    <div id="page-psi-plot" class="course-page">
+                        <h2>Wave Function ($\Psi$) vs. Distance (r)</h2>
+                        <p>This plot shows the value of the radial part of the wave function ($R(r)$) as a function of distance ($r$) from the nucleus ($a_0=1$). $\Psi$ can be positive or negative, representing its phase. Use mouse wheel to zoom, click and drag to pan. Double-click to reset zoom.</p>
+                        <div class="interactive-section">
+                            <h3>Controls for $\Psi(r)$ Plot</h3>
+                            <div class="interactive-controls">
+                                <label for="mod2-n-slider-psi">n:</label> <input type="range" id="mod2-n-slider-psi" min="1" max="4" value="1" step="1"> <span id="mod2-n-value-psi">1</span>
+                                <label for="mod2-l-slider-psi">l:</label> <input type="range" id="mod2-l-slider-psi" min="0" max="0" value="0" step="1"> <span id="mod2-l-value-psi">0</span>
+                                <span class="orbital-type-display" id="mod2-orbital-type-psi">1s</span>
+                            </div>
+                            <div class="plot-container"><canvas id="mod2-psiChart"></canvas></div>
+                            <div class="info-table-container" id="mod2-psi-info-table-container"></div>
+                        </div>
+                        <h3>Key Observations for $\Psi(r)$:</h3>
+                        <ul><li>The sign of $\Psi$ is crucial for chemical bonding.</li><li>Radial nodes = $n - l - 1$.</li><li>For $l > 0$, $\Psi(0) = 0$. For $l = 0$ (s-orbitals), $\Psi(0)$ is non-zero.</li></ul>
+                    </div>
+                    <div id="page-psi2-plot" class="course-page">
+                        <h2>Probability Density ($\Psi^2$) vs. Distance (r)</h2>
+                        <p>This plot displays $\Psi^2$ (or $R(r)^2$) vs. distance ($r$). $\Psi^2$ is the probability of finding the electron per unit volume. It's always non-negative. Radial nodes (where $\Psi^2 = 0$) are identical to those in the $\Psi$ plot. Use mouse wheel to zoom, click and drag to pan. Double-click to reset zoom.</p>
+                        <div class="interactive-section">
+                            <h3>Controls for $\Psi^2(r)$ Plot</h3>
+                            <div class="interactive-controls">
+                                <label for="mod2-n-slider-psi2">n:</label> <input type="range" id="mod2-n-slider-psi2" min="1" max="4" value="1" step="1"> <span id="mod2-n-value-psi2">1</span>
+                                <label for="mod2-l-slider-psi2">l:</label> <input type="range" id="mod2-l-slider-psi2" min="0" max="0" value="0" step="1"> <span id="mod2-l-value-psi2">0</span>
+                                <span class="orbital-type-display" id="mod2-orbital-type-psi2">1s</span>
+                            </div>
+                            <div class="plot-container"><canvas id="mod2-psi2Chart"></canvas></div>
+                            <div class="info-table-container" id="mod2-psi2-info-table-container"></div>
+                        </div>
+                        <h3>Key Observations for $\Psi^2(r)$:</h3>
+                        <ul><li>For s-orbitals ($l=0$), $\Psi^2$ is maximal at $r=0$.</li><li>For $l > 0$, $\Psi^2$ is zero at $r=0$.</li></ul>
+                    </div>
+                    <div id="page-rdf-plot" class="course-page">
+                        <h2>Radial Distribution Function (RDF) Plot</h2>
+                        <p>The RDF ($r^2R(r)^2$) shows the total probability of finding an electron in a thin spherical shell at distance $r$. It accounts for the increasing volume of shells. Peaks indicate most probable radii. Use mouse wheel to zoom, click and drag to pan. Double-click to reset zoom.</p>
+                        <div class="interactive-section">
+                            <h3>Controls for RDF Plot ($r^2R(r)^2$)</h3>
+                            <div class="interactive-controls">
+                                <label for="mod2-n-slider-rdf">n:</label> <input type="range" id="mod2-n-slider-rdf" min="1" max="4" value="1" step="1"> <span id="mod2-n-value-rdf">1</span>
+                                <label for="mod2-l-slider-rdf">l:</label> <input type="range" id="mod2-l-slider-rdf" min="0" max="0" value="0" step="1"> <span id="mod2-l-value-rdf">0</span>
+                                <span class="orbital-type-display" id="mod2-orbital-type-rdf">1s</span>
+                            </div>
+                            <div class="plot-container"><canvas id="mod2-rdfChart"></canvas></div>
+                            <div class="info-table-container" id="mod2-rdf-info-table-container"></div>
+                        </div>
+                        <h3>Key Observations for RDF Plots:</h3>
+                        <ul><li>RDF is zero at $r=0$.</li><li>Number of peaks = $n-l$.</li><li>Radial nodes = $n - l - 1$.</li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: Orbital Shapes & Quantum Numbers (from code - 2025-05-25T175027.746.html) -->
+        <div id="module-content-orbital_shapes" class="module-content-view">
+            <div class="back-to-modules-container"><button class="module-link-btn back-to-modules-btn">← Back to Modules</button></div>
+            <div class="course-header"><h1>Atomic Tutor: Orbital Shapes & Quantum Numbers</h1></div>
+            <div class="course-main">
+                <nav class="course-nav">
+                    <ul>
+                        <li><a href="#" class="course-nav-link" data-page="page-quantum-numbers">Quantum Numbers</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-orbital-shapes">Orbital Shapes & Nodes</a></li>
+                    </ul>
+                </nav>
+                <div class="course-content">
+                    <div id="page-quantum-numbers" class="course-page">
+                        <h2>Quantum Numbers</h2>
+                        <p>In the quantum mechanical model of the atom, four quantum numbers are used to describe the state of an electron within an atom. These numbers arise from the solution of the Schrödinger equation and define the properties of the electron's orbital and its spin.</p>
+                        <h4>1. Principal Quantum Number ($n$)</h4>
+                        <ul><li>Determines the electron's main energy level (or shell).</li><li>Represents the relative size of the orbital and its distance from the nucleus. Higher $n$ means higher energy and larger orbital.</li><li>Allowed values: Positive integers ($n = 1, 2, 3, \dots, \infty$).</li><li>Shells are sometimes designated by letters: K ($n=1$), L ($n=2$), M ($n=3$), etc.</li></ul>
+                        <h4>2. Azimuthal or Angular Momentum Quantum Number ($l$)</h4>
+                        <ul><li>Determines the shape of the electron's orbital (subshell).</li><li>Also relates to the angular momentum of the electron.</li><li>Allowed values: Integers from $0$ to $n-1$.<ul><li>$l=0 \rightarrow$ s orbital (spherical)</li><li>$l=1 \rightarrow$ p orbital (dumbbell-shaped)</li><li>$l=2 \rightarrow$ d orbital (more complex shapes)</li><li>$l=3 \rightarrow$ f orbital (even more complex shapes)</li></ul></li></ul>
+                        <h4>3. Magnetic Quantum Number ($m_l$)</h4>
+                        <ul><li>Determines the orientation of the orbital in space relative to an external magnetic field.</li><li>Allowed values: Integers from $-l$ to $+l$, including $0$.<ul><li>For $l=0$ (s orbital): $m_l = 0$ (1 orientation)</li><li>For $l=1$ (p orbitals): $m_l = -1, 0, +1$ (3 orientations: $p_x, p_y, p_z$)</li><li>For $l=2$ (d orbitals): $m_l = -2, -1, 0, +1, +2$ (5 orientations)</li><li>For $l=3$ (f orbitals): $m_l = -3, -2, -1, 0, +1, +2, +3$ (7 orientations)</li></ul></li><li>Orbitals with the same $n$ and $l$ but different $m_l$ are degenerate (have the same energy) in the absence of an external magnetic field.</li></ul>
+                        <h4>4. Spin Quantum Number ($m_s$)</h4>
+                        <ul><li>Describes the intrinsic angular momentum of the electron, often visualized as its "spin" (though this is a classical analogy).</li><li>An electron can spin in one of two directions.</li><li>Allowed values: $+\frac{1}{2}$ (spin up, $\uparrow$) or $-\frac{1}{2}$ (spin down, $\downarrow$).</li></ul>
+                        <div class="note"><strong>Pauli Exclusion Principle:</strong> No two electrons in the same atom can have the identical set of all four quantum numbers ($n, l, m_l, m_s$). This means each orbital (defined by $n, l, m_l$) can hold a maximum of two electrons, and these two electrons must have opposite spins.</div>
+                    </div>
+                    <div id="page-orbital-shapes" class="course-page">
+                        <h2>Atomic Orbital Shapes & Nodes</h2>
+                        <p>Atomic orbitals are regions in space where there is a high probability of finding an electron. Their shape and orientation are defined by quantum numbers. Use the controls to select an orbital and view its 3D representation. You can rotate the orbital with your mouse/touch.</p>
+                        <div class="interactive-section">
+                            <h3>Select Orbital to Visualize</h3>
+                            <div class="controls-flex">
+                                <label for="mod3-n-select-shape">n:</label><select id="mod3-n-select-shape"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
+                                <label for="mod3-l-select-shape">l:</label><select id="mod3-l-select-shape"></select>
+                                <label for="mod3-ml-select-shape">m<sub>l</sub>:</label><select id="mod3-ml-select-shape"></select>
+                                <span class="orbital-type-display" id="mod3-orbital-type-shape-display">2p</span>
+                            </div>
+                            <div class="visualization-area-3d" id="mod3-orbital-viewer-container"><canvas id="mod3-orbital-canvas"></canvas><p class="visualization-placeholder-text" id="mod3-orbital-placeholder-text" style="display:none;"></p></div>
+                            <div class="info-table-container" id="mod3-orbital-info-table-container"></div>
+                        </div>
+                        <h3>Nodes in Atomic Orbitals</h3>
+                        <p>Nodes are regions where the probability of finding an electron is zero ($\Psi = 0$).</p>
+                        <ul><li><strong>Radial Nodes:</strong> Spherical surfaces. Number = $\mathbf{n - l - 1}$.</li><li><strong>Angular Nodes:</strong> Planar or conical surfaces. Number = $\mathbf{l}$.</li><li><strong>Total Nodes:</strong> Sum of radial and angular nodes = $\mathbf{n - 1}$.</li></ul>
+                        <div class="orbital-descriptions"><h4>General Orbital Characteristics:</h4><p><strong>s-orbitals ($l=0$):</strong> These orbitals are spherically symmetrical. They have $l=0$ angular nodes and $n-1$ radial nodes.</p><p><strong>p-orbitals ($l=1$):</strong> These orbitals have a dumbbell shape and are oriented along the x, y, or z axes ($p_x, p_y, p_z$). They have $l=1$ angular node (which is a plane) and $n-l-1$ (i.e., $n-2$) radial nodes.</p><p><strong>d-orbitals ($l=2$):</strong> These orbitals have more complex shapes. Four of the five d-orbitals ($d_{xy}, d_{xz}, d_{yz}, d_{x^2-y^2}$) typically have a "cloverleaf" shape with two angular nodal planes. The fifth, $d_{z^2}$, has a dumbbell shape with a torus (doughnut shape) around its middle, and two conical angular nodes. All d-orbitals have $l=2$ angular nodes and $n-l-1$ (i.e., $n-3$) radial nodes.</p><p><strong>f-orbitals ($l=3$):</strong> These orbitals have even more intricate, multi-lobed shapes (typically 7 distinct f-orbitals). They have $l=3$ angular nodes and $n-l-1$ (i.e., $n-4$) radial nodes. Visualizing them accurately in 3D is complex and often omitted in introductory representations.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 4: Analyzing Radial Wavefunctions (from (99).html) -->
+        <div id="module-content-analyzing_wavefunctions" class="module-content-view">
+            <div class="back-to-modules-container"><button class="module-link-btn back-to-modules-btn">← Back to Modules</button></div>
+            <div class="course-header"><h1>Quantum Mechanics: Analyzing Radial Wavefunctions</h1></div>
+            <div class="course-main">
+                <nav class="course-nav">
+                    <ul>
+                        <li><a href="#" class="course-nav-link" data-page="page-intro">Introduction & 2s Orbital</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-3s-nodes">3s Orbital: Nodes</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-3s-extrema">3s Orbital: Maxima/Minima</a></li>
+                        <li><a href="#" class="course-nav-link" data-page="page-plotter">Interactive Plotter & Summary</a></li>
+                    </ul>
+                </nav>
+                <div class="course-content">
+                    <div id="page-intro" class="course-page">
+                        <h2>Welcome!</h2>
+                        <p>In solving the Schrödinger equation for atoms, particularly for the radial part, we often encounter wavefunctions $R(r)$ that involve a polynomial multiplied by an exponential decay. Let's explore how to find key features like nodes and maxima/minima for these functions.</p>
+                        <p>We'll use $a_0$ as the Bohr radius. For plotting and calculations, we'll often set $a_0=1$ and express $r$ in units of $a_0$.</p>
+                        <h2>Example 1: Hydrogen Atom – 2s Orbital</h2>
+                        <p>The radial wavefunction for the 2s orbital (ignoring normalization constant $N_{2s}$ for shape analysis) is:</p>$$ R_{2s}(r) \propto \left(1 - \frac{r}{2a_0}\right) e^{-r/2a_0} $$
+                        <p>This function has a <strong>linear polynomial</strong> $\left(1 - \frac{r}{2a_0}\right)$ multiplied by an exponential.</p>
+                        <p>The node for $R_{2s}(r)$ occurs when the polynomial part is zero: $1 - \frac{r}{2a_0} = 0$, which gives $r = 2a_0$.</p>
+                    </div>
+                    <div id="page-3s-nodes" class="course-page">
+                        <h2>Example 2: Hydrogen Atom – 3s Orbital</h2>
+                        <p>The radial wavefunction for the 3s orbital is more complex, involving a <strong>quadratic polynomial</strong> (again, ignoring normalization $N_{3s}$):</p>$$ R_{3s}(r) \propto \left(1 - \frac{2r}{3a_0} + \frac{2}{27} \left(\frac{r}{a_0}\right)^2 \right) e^{-r/3a_0} $$
+                        <h2>Step 1: Find the Nodes (Roots) for 3s Orbital</h2>
+                        <p>Nodes occur where $R_{3s}(r) = 0$. Since the exponential term $e^{-r/3a_0}$ is never zero for finite $r$, we only need to find the roots of the polynomial part:</p>$$ 1 - \frac{2r}{3a_0} + \frac{2}{27} \left(\frac{r}{a_0}\right)^2 = 0 $$
+                        <p>Let $x = \frac{r}{a_0}$. The equation becomes:</p>$$ 1 - \frac{2x}{3} + \frac{2x^2}{27} = 0 $$
+                        <p>Multiply by 27 to clear denominators:</p>$$ 27 - 18x + 2x^2 = 0 \quad \Rightarrow \quad 2x^2 - 18x + 27 = 0 $$
+                        <p>Using the quadratic formula $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$ with $a=2, b=-18, c=27$:</p>$$ x = \frac{18 \pm \sqrt{(-18)^2 - 4(2)(27)}}{2(2)} = \frac{18 \pm \sqrt{324 - 216}}{4} = \frac{18 \pm \sqrt{108}}{4} $$
+                        <p>Since $\sqrt{108} = \sqrt{36 \times 3} = 6\sqrt{3}$:</p>$$ x = \frac{18 \pm 6\sqrt{3}}{4} = \frac{9 \pm 3\sqrt{3}}{2} $$
+                        <p>So the nodes (in units of $r/a_0$) are at:</p>$$ x_1 = \frac{9 - 3\sqrt{3}}{2} \approx 1.90 $$ $$ x_2 = \frac{9 + 3\sqrt{3}}{2} \approx 7.10 $$
+                        <p>Therefore, $r_1 \approx 1.90 a_0$ and $r_2 \approx 7.10 a_0$.</p>
+                    </div>
+                    <div id="page-3s-extrema" class="course-page">
+                        <h2>Step 2: Find Maxima/Minima of $R_{3s}(r)$</h2>
+                        <p>To find the maxima/minima of $R_{3s}(r)$, we need to differentiate $R_{3s}(r)$ with respect to $r$ and set $\frac{dR_{3s}}{dr} = 0$. Let $P_0(r) = \left(1 - \frac{2r}{3a_0} + \frac{2}{27} \left(\frac{r}{a_0}\right)^2 \right)$. So, $R_{3s}(r) \propto P_0(r) e^{-r/3a_0}$. Using the product rule $\frac{d}{dr}(uv) = u'v + uv'$:</p>$$ \frac{dR_{3s}}{dr} \propto \frac{dP_0}{dr} e^{-r/3a_0} + P_0(r) \left(-\frac{1}{3a_0}\right) e^{-r/3a_0} $$
+                        <p>Set $\frac{dR_{3s}}{dr} = 0$. Since $e^{-r/3a_0} \neq 0$, we can divide by it:</p>$$ \frac{dP_0}{dr} - \frac{1}{3a_0} P_0(r) = 0 $$
+                        <p>First, let $x = r/a_0$. Then $P_0(x) = 1 - \frac{2x}{3} + \frac{2x^2}{27}$. The derivative with respect to $x$ is:</p>$$ \frac{dP_0}{dx} = -\frac{2}{3} + \frac{4x}{27} $$
+                        <p>So, $\frac{dP_0}{dr} = \frac{dP_0}{dx} \frac{dx}{dr} = \left(-\frac{2}{3} + \frac{4x}{27}\right) \frac{1}{a_0}$. Substituting into the condition for extrema:</p>$$ \left(-\frac{2}{3a_0} + \frac{4r}{27a_0^2}\right) - \frac{1}{3a_0} \left(1 - \frac{2r}{3a_0} + \frac{2r^2}{27a_0^2}\right) = 0 $$
+                        <p>Multiply by $27a_0^2$ and use $x = r/a_0$:</p>$$ 27a_0 \left(-\frac{2}{3} + \frac{4x}{27}\right) - 9a_0 \left(1 - \frac{2x}{3} + \frac{2x^2}{27}\right) = 0 $$ $$ (-18a_0 + 4a_0 x) - (9a_0 - 6a_0 x + \frac{2a_0}{3}x^2) = 0 $$
+                        <p>Divide by $a_0$ (assuming $a_0 \neq 0$):</p>$$ -18 + 4x - 9 + 6x - \frac{2}{3}x^2 = 0 $$ $$ -\frac{2}{3}x^2 + 10x - 27 = 0 \quad \Rightarrow \quad 2x^2 - 30x + 81 = 0 $$
+                        <p>Using the quadratic formula for $x = r/a_0$:</p>$$ x = \frac{30 \pm \sqrt{(-30)^2 - 4(2)(81)}}{2(2)} = \frac{30 \pm \sqrt{900 - 648}}{4} = \frac{30 \pm \sqrt{252}}{4} $$
+                        <p>Since $\sqrt{252} = \sqrt{36 \times 7} = 6\sqrt{7}$:</p>$$ x = \frac{30 \pm 6\sqrt{7}}{4} = \frac{15 \pm 3\sqrt{7}}{2} $$
+                        <p>So the extrema of $R_{3s}(r)$ (in units of $r/a_0$) are at:</p>$$ x_{ex1} = \frac{15 - 3\sqrt{7}}{2} \approx 3.54 $$ $$ x_{ex2} = \frac{15 + 3\sqrt{7}}{2} \approx 11.46 $$
+                        <p>Note: There's also an extremum at $r=0$ for $s$-orbitals (a non-zero value for $R(0)$ and often a maximum magnitude depending on the normalization constant choice).</p>
+                    </div>
+                    <div id="page-plotter" class="course-page">
+                        <h2>Radial Probability Density $P(r) = r^2 |R(r)|^2$</h2>
+                        <p>Often, we are more interested in the radial probability density, $P_{nl}(r) = r^2 |R_{nl}(r)|^2$, which gives the probability of finding the electron in a spherical shell of thickness $dr$ at radius $r$. Since $R_{nl}(r)$ is real for these cases, $P_{nl}(r) = r^2 R_{nl}(r)^2$. Finding maxima of $P_{nl}(r)$ tells us the radii where the electron is most likely to be found.</p>
+                        <h2>Interactive Plotter</h2>
+                        <div class="interactive-section">
+                            <h3>Visualize Wavefunctions and Probabilities</h3>
+                            <p>Select a function to plot. For $R(r)$, nodes ($R(r)=0$) will be marked with red dots, and extrema ($dR/dr=0$) with blue dots. For $P(r)$, nodes are where $P(r)=0$, and we primarily look for its peaks (maxima of $P(r)$). We'll use $a_0 = 1$ for plotting.</p>
+                            <button id="mod4-plotR2sButton">Plot $R_{2s}(r)$</button> <button id="mod4-plotR3sButton">Plot $R_{3s}(r)$</button> <button id="mod4-plotP3sButton">Plot $P_{3s}(r)$</button>
+                            <div class="plot-container"><canvas id="mod4-wavefunctionChart"></canvas></div>
+                            <div id="mod4-resultsArea"><p>Calculated values will appear here.</p></div>
+                        </div>
+                        <h2>Summary</h2>
+                        <table><thead><tr><th>Concept</th><th>Operation for $R_{nl}(r)$</th><th>Example ($R_{3s}$ orbital, $x=r/a_0$)</th><th>Result (for $x=r/a_0$)</th></tr></thead>
+                        <tbody><tr><td><strong>Nodes of $R_{nl}(r)$</strong></td><td>Set polynomial part of $R_{nl}(r)$ to 0</td><td>$2x^2 - 18x + 27 = 0$</td><td>$x = \frac{9 \pm 3\sqrt{3}}{2}$ <br/>(approx. 1.90, 7.10)</td></tr>
+                        <tr><td><strong>Maxima/Minima of $R_{nl}(r)$</strong></td><td>Set $\frac{dR_{nl}}{dr} = 0$</td><td>$2x^2 - 30x + 81 = 0$</td><td>$x = \frac{15 \pm 3\sqrt{7}}{2}$ <br/>(approx. 3.54, 11.46), plus $x=0$</td></tr>
+                        <tr><td><strong>Maxima of $P_{nl}(r) = r^2 R_{nl}(r)^2$</strong></td><td>Set $\frac{dP_{nl}}{dr} = 0$</td><td>More complex polynomial equation.</td><td>(Peaks visible on plot)</td></tr></tbody></table>
+                        <div class="note"><strong>Note on Extrema:</strong> The point $r=0$ is often an extremum for $R_{nl}(0)$ (it's finite and non-zero for s-orbitals). For $P_{nl}(r)=r^2R_{nl}(r)^2$, $P_{nl}(0)=0$ always, so it's a minimum. The "most probable radius" corresponds to the largest peak (global maximum) in $P_{nl}(r)$ for $r>0$.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 5: Key Formulas Summary (from code - 2025-05-25T175609.640.html) -->
+        <div id="module-content-formulas_summary" class="module-content-view">
+            <div class="back-to-modules-container"><button class="module-link-btn back-to-modules-btn">← Back to Modules</button></div>
+            <div class="course-header"><h1>Atomic Tutor: Key Formulas Summary</h1></div>
+            <!-- This module is simpler, no internal nav, course-main directly contains course-content -->
+             <div class="course-content"> <!-- No course-main or course-nav here -->
+                <h2>Key Formulas in Atomic Structure & Bonding</h2>
+                <div class="formula-list-item"><div class="formula-katex">$$ \hat{H}\Psi = E\Psi $$</div><div class="formula-tooltip">Time-Independent Schrödinger Equation: Describes the energy and wave function of a quantum system.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \text{Probability Density} \propto \Psi^2 $$</div><div class="formula-tooltip">Probability per unit volume of finding an electron at a specific point. $|\Psi|^2$ if $\Psi$ is complex.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \Psi $$</div><div class="formula-tooltip">Wave Function: A mathematical function describing the quantum state of an electron; its phase is crucial for bonding.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \text{Radial Probability} \propto r^2 R(r)^2 $$</div><div class="formula-tooltip">Probability of finding an electron in a thin spherical shell at distance $r$. ($R(r)$ is the radial part of $\Psi$). Properly $4\pi r^2 \Psi^2$ for spherical symmetry.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \text{Number of Radial Nodes} = n - l - 1 $$</div><div class="formula-tooltip">Spherical surfaces where the probability of finding an electron is zero (excluding $r=0, \infty$).</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \text{Number of Angular Nodes} = l $$</div><div class="formula-tooltip">Planar or conical surfaces passing through the nucleus where the probability is zero.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \text{Total Number of Nodes} = n - 1 $$</div><div class="formula-tooltip">Sum of radial and angular nodes for an atomic orbital.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ \text{Bond Order (MOT)} = \frac{1}{2} (\text{Bonding } e^- - \text{Antibonding } e^-) $$</div><div class="formula-tooltip">In Molecular Orbital Theory, indicates the net number of bonds between two atoms.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ n > 0 \text{ (integer)} $$</div><div class="formula-tooltip">Principal Quantum Number: Defines energy level and size.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ 0 \le l < n \text{ (integer)} $$</div><div class="formula-tooltip">Azimuthal Quantum Number: Defines orbital shape (s, p, d, f...).</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ -l \le m_l \le +l \text{ (integer)} $$</div><div class="formula-tooltip">Magnetic Quantum Number: Defines orbital orientation in space.</div></div>
+                <div class="formula-list-item"><div class="formula-katex">$$ m_s = \pm\frac{1}{2} $$</div><div class="formula-tooltip">Spin Quantum Number: Defines intrinsic electron spin (up or down).</div></div>
+            </div>
+        </div>
+        
+        <!-- Module 6: Comprehensive Quiz (from code - 2025-05-25T180926.499.html) -->
+        <div id="module-content-comprehensive_quiz" class="module-content-view">
+            <div class="back-to-modules-container"><button class="module-link-btn back-to-modules-btn">← Back to Modules</button></div>
+            <div class="course-header"><h1>Atomic Tutor: Comprehensive Test Yourself</h1></div>
+            <div class="course-main"> <!-- This matches original structure -->
+                <nav class="course-nav">
+                    <h3>Quiz Sections</h3>
+                    <ul>
+                        <li><a href="#" class="quiz-section-link" data-section="quantum_basics">Quantum Numbers & Orbitals</a></li>
+                        <li><a href="#" class="quiz-section-link" data-section="bonding_mot">Bonding & MO Theory</a></li>
+                        <li><a href="#" class="quiz-section-link" data-section="jee_advanced">JEE Advanced Problems</a></li>
+                    </ul>
+                </nav>
+                <div class="quiz-content-wrapper" id="mod6-quiz-app-wrapper">
+                    <div id="quiz-section-quantum_basics" class="quiz-section-page">
+                        <h2>Quiz: Quantum Numbers & Orbitals</h2><div class="quiz-content-area"></div>
+                        <div class="quiz-navigation"><button class="quiz-nav-btn next-question-btn" style="display:none;">Next Question</button><button class="quiz-nav-btn show-results-btn" style="display:none;">Show Results</button><button class="quiz-nav-btn restart-quiz-btn" style="display:none;">Restart This Section</button></div>
+                    </div>
+                    <div id="quiz-section-bonding_mot" class="quiz-section-page">
+                        <h2>Quiz: Bonding & MO Theory</h2><div class="quiz-content-area"></div>
+                        <div class="quiz-navigation"><button class="quiz-nav-btn next-question-btn" style="display:none;">Next Question</button><button class="quiz-nav-btn show-results-btn" style="display:none;">Show Results</button><button class="quiz-nav-btn restart-quiz-btn" style="display:none;">Restart This Section</button></div>
+                    </div>
+                    <div id="quiz-section-jee_advanced" class="quiz-section-page">
+                        <h2>Quiz: JEE Advanced Problems</h2><div class="quiz-content-area"></div>
+                        <div class="quiz-navigation"><button class="quiz-nav-btn next-question-btn" style="display:none;">Next Question</button><button class="quiz-nav-btn show-results-btn" style="display:none;">Show Results</button><button class="quiz-nav-btn restart-quiz-btn" style="display:none;">Restart This Section</button></div>
+                    </div>
+                    <div id="quiz-section-welcome" class="quiz-section-page">
+                        <h2>Welcome to the Comprehensive Quiz!</h2><p style="text-align:center; font-size: 1.1em;">Select a quiz section from the sidebar to begin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2023-2024 Atomic Structure & Bonding Tutor. Educational Example.</p>
+    </footer>
+
+    <script type="module" id="module3-script-placeholder">
+        // This will be populated by the initModuleOrbitalShapes function
+        // The original script was type="module" so we need to handle it carefully.
+        // We will dynamically create and append the Three.js related script when module 3 is shown.
+    </script>
+
+    <script>
+        // --- GLOBAL SPA NAVIGATION AND MODULE INITIALIZATION LOGIC ---
+        const moduleGrid = document.getElementById('module-grid-view');
+        const moduleContentViews = document.querySelectorAll('.module-content-view');
+        const moduleLinkButtons = document.querySelectorAll('.module-link-btn[data-module]');
+        const backToModulesButtons = document.querySelectorAll('.back-to-modules-btn');
+
+        const katexRenderOptions = {
+            delimiters: [
+                {left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false},
+                {left: "\\(", right: "\\)", display: false}, {left: "\\[", right: "\\]", display: true}
+            ],
+            throwOnError: false
+        };
+
+        // Store initialization status for modules to avoid re-initializing heavy things like Three.js
+        const moduleInitializationStatus = {
+            schrodinger_wavefunctions: false,
+            radial_plots: false,
+            orbital_shapes: false,
+            analyzing_wavefunctions: false,
+            formulas_summary: false, // No JS needed for this one typically
+            comprehensive_quiz: false,
+        };
+
+
+        function showModule(moduleId) {
+            moduleGrid.style.display = 'none';
+            moduleContentViews.forEach(view => view.style.display = 'none');
+
+            const activeModuleView = document.getElementById(`module-content-${moduleId}`);
+            if (activeModuleView) {
+                activeModuleView.style.display = 'block';
+                window.location.hash = moduleId;
+                window.scrollTo(0, 0);
+
+                if (typeof renderMathInElement === "function") {
+                    renderMathInElement(activeModuleView, katexRenderOptions);
+                }
+
+                // Call module-specific initialization if not already done
+                switch (moduleId) {
+                    case 'schrodinger_wavefunctions':
+                        if (!moduleInitializationStatus.schrodinger_wavefunctions) {
+                            initModuleSchrodingerWavefunctions();
+                            moduleInitializationStatus.schrodinger_wavefunctions = true;
+                        }
+                        // Ensure first page is active if returning
+                        const mod1_schrodingerNav = activeModuleView.querySelector('.course-nav-link[data-page="page-schrodinger"]');
+                        if(mod1_schrodingerNav) mod1_schrodingerNav.click();
+                        break;
+                    case 'radial_plots':
+                        if (!moduleInitializationStatus.radial_plots) {
+                            initModuleRadialPlots(); // This now contains the new chart styling
+                            moduleInitializationStatus.radial_plots = true;
+                        }
+                         const mod2_psiPlotNav = activeModuleView.querySelector('.course-nav-link[data-page="page-psi-plot"]');
+                        if(mod2_psiPlotNav) mod2_psiPlotNav.click();
+                        break;
+                    case 'orbital_shapes':
+                        if (!moduleInitializationStatus.orbital_shapes) {
+                            initModuleOrbitalShapes(); // This will handle the module script
+                            moduleInitializationStatus.orbital_shapes = true;
+                        }
+                         const mod3_qNumNav = activeModuleView.querySelector('.course-nav-link[data-page="page-quantum-numbers"]');
+                        if(mod3_qNumNav) mod3_qNumNav.click();
+                        break;
+                    case 'analyzing_wavefunctions':
+                         if (!moduleInitializationStatus.analyzing_wavefunctions) {
+                            initModuleAnalyzingWavefunctions(); // This now contains the new chart styling
+                            moduleInitializationStatus.analyzing_wavefunctions = true;
+                        }
+                        const mod4_introNav = activeModuleView.querySelector('.course-nav-link[data-page="page-intro"]');
+                        if(mod4_introNav) mod4_introNav.click();
+                        break;
+                    case 'formulas_summary':
+                        // No specific JS init needed, KaTeX rendering is enough.
+                        moduleInitializationStatus.formulas_summary = true; // Mark as "initialized"
+                        break;
+                    case 'comprehensive_quiz':
+                        if (!moduleInitializationStatus.comprehensive_quiz) {
+                            initModuleComprehensiveQuiz();
+                            moduleInitializationStatus.comprehensive_quiz = true;
+                        }
+                        const mod6_welcomeNav = activeModuleView.querySelector('.quiz-section-link[data-section="quantum_basics"]'); // Default to first quiz section
+                        if(mod6_welcomeNav) mod6_welcomeNav.click(); else { // fallback if no quiz sections
+                            const welcomePage = activeModuleView.querySelector('#quiz-section-welcome');
+                            if(welcomePage) {
+                                activeModuleView.querySelectorAll('.quiz-section-page').forEach(p => p.classList.remove('active'));
+                                welcomePage.classList.add('active');
+                            }
+                        }
+                        break;
+                }
+            } else {
+                showModuleGrid(); // Fallback to grid if module not found
+            }
+        }
+
+        function showModuleGrid() {
+            moduleGrid.style.display = 'block';
+            moduleContentViews.forEach(view => view.style.display = 'none');
+            window.location.hash = '';
+            window.scrollTo(0, 0);
+        }
+
+        moduleLinkButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const moduleId = button.dataset.module;
+                showModule(moduleId);
+            });
+        });
+
+        backToModulesButtons.forEach(button => {
+            button.addEventListener('click', showModuleGrid);
+        });
+
+        // Handle URL hash changes for direct navigation/bookmarking
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                showModule(hash);
+            } else {
+                showModuleGrid();
+            }
+        });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            // General KaTeX render for initial view (e.g. if module cards had math)
+            if (typeof renderMathInElement === "function") {
+                 renderMathInElement(moduleGrid, katexRenderOptions);
+            }
+
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash) {
+                showModule(initialHash);
+            } else {
+                showModuleGrid();
+            }
+        });
+
+        // --- MODULE-SPECIFIC JAVASCRIPT INITIALIZATION FUNCTIONS ---
+
+        function initModuleSchrodingerWavefunctions() {
+            const moduleContainer = document.getElementById('module-content-schrodinger_wavefunctions');
+            const pages = moduleContainer.querySelectorAll('.course-page');
+            const navLinks = moduleContainer.querySelectorAll('.course-nav-link');
+            let initialPage = 'page-schrodinger';
+
+            function showSubPage(pageId) {
+                let contentChanged = false;
+                pages.forEach(page => {
+                    const isTargetPage = page.id === pageId;
+                    if (isTargetPage && (!page.classList.contains('active'))) {
+                        page.style.display = 'block'; page.classList.add('active'); contentChanged = true;
+                    } else if (!isTargetPage) {
+                        page.style.display = 'none'; page.classList.remove('active');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('data-page') === pageId);
+                });
+                 if (contentChanged && typeof renderMathInElement === "function") {
+                    renderMathInElement(moduleContainer.querySelector('.course-page.active') || moduleContainer, katexRenderOptions);
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    showSubPage(pageId);
+                    // No hash update for sub-pages to keep main module hash
+                });
+            });
+            showSubPage(initialPage); // Show default sub-page for this module
+        }
+
+       // --- PASTE THIS JAVASCRIPT INTO YOUR STANDALONE HTML FILE ---
+// --- Replace the existing initModuleRadialPlots and initModuleAnalyzingWavefunctions functions ---
+
+        function initModuleRadialPlots() { // <<<< CORRECTED FUNCTION
+            const moduleContainer = document.getElementById('module-content-radial_plots');
+            const lLabels_mod2 = ['s', 'p', 'd', 'f'];
+            const MAX_R_PLOT_mod2 = 35; 
+            const PLOT_POINTS_COUNT_mod2 = 300; 
+            const charts_mod2 = {};
+
+            function radialWaveFunctionApprox_mod2(n, l, r_val) { 
+                if (r_val < 0) return 0; const r = Math.max(r_val, 1e-9); const rho = 2 * r / n; 
+                switch (`${n},${l}`) {
+                    case '1,0': return 2 * Math.exp(-rho); 
+                    case '2,0': return (1 / (2 * Math.sqrt(2))) * (2 - rho) * Math.exp(-rho / 2); 
+                    case '2,1': return (1 / (2 * Math.sqrt(6))) * rho * Math.exp(-rho / 2); 
+                    case '3,0': return (1 / (9 * Math.sqrt(3))) * (6 - 6 * rho + rho**2) * Math.exp(-rho / 2); 
+                    case '3,1': return (1 / (9 * Math.sqrt(6))) * rho * (4 - rho) * Math.exp(-rho / 2); 
+                    case '3,2': return (1 / (9 * Math.sqrt(30))) * rho**2 * Math.exp(-rho / 2); 
+                    case '4,0': return (1/96) * (24 - 36*rho + 12*rho**2 - rho**3) * Math.exp(-rho/2); 
+                    case '4,1': return (1/(32*Math.sqrt(15))) * rho * (20 - 10*rho + rho**2) * Math.exp(-rho/2); 
+                    case '4,2': return (1/(96*Math.sqrt(5))) * rho**2 * (6 - rho) * Math.exp(-rho/2); 
+                    case '4,3': return (1/(96*Math.sqrt(35))) * rho**3 * Math.exp(-rho/2); 
+                    default: return Math.exp(-r / n) * ( (l===0) ? 1: Math.pow(r,l) ) ; 
+                }
+            }
+            function findApproximateNodes_mod2(plotData, plotType) { 
+                const nodes = []; if (!plotData || plotData.length < 2) return nodes;
+                for (let i = 0; i < plotData.length - 1; i++) {
+                    const p1 = plotData[i]; const p2 = plotData[i+1]; let isNode = false;
+                    const potentialNodeX = p1.x - p1.y * (p2.x - p1.x) / (p2.y - p1.y); 
+                    if (plotType === 'psi') { if ((p1.y > 1e-6 && p2.y < -1e-6) || (p1.y < -1e-6 && p2.y > 1e-6)) isNode = true; }
+                    else { if ( ((p1.y > 1e-6 && p2.y < 1e-6) || (p1.y < 1e-6 && p2.y > 1e-6)) && Math.abs(p1.y - p2.y) > 1e-7 ) { if (potentialNodeX > 1e-3) isNode = true; } }
+                    if (isNode) { if (Math.abs(p2.y - p1.y) > 1e-9) { if (potentialNodeX < MAX_R_PLOT_mod2 - 1e-3) { if (!nodes.some(n => Math.abs(n.x - potentialNodeX) < 0.5)) nodes.push({ x: potentialNodeX, y: 0 }); } } }
+                } return nodes.sort((a,b) => a.x - b.x);
+            }
+            function calculatePlotData_mod2(n, l, type) { 
+                const data = []; const step = MAX_R_PLOT_mod2 / PLOT_POINTS_COUNT_mod2;
+                for (let i = 0; i <= PLOT_POINTS_COUNT_mod2; i++) {
+                    const r = i * step; const R_nl = radialWaveFunctionApprox_mod2(n, l, r); let P_val;
+                    if (type === 'psi') P_val = R_nl; else if (type === 'psi2') P_val = R_nl**2; else P_val = r**2 * R_nl**2; 
+                    if(isFinite(P_val)) data.push({ x: r, y: P_val }); else data.push({x:r, y:0});
+                }
+                if (type === 'rdf') { const maxPeak = data.reduce((max, p) => Math.max(max, p.y), 0); if (maxPeak > 1e-9) data.forEach(p => p.y = p.y / maxPeak); }
+                return data;
+            }
+            function createOrUpdateChart_mod2(canvasId, n, l, plotType, yAxisLabel) { 
+                const ctx = moduleContainer.querySelector(`#${canvasId}`).getContext('2d'); const plotData = calculatePlotData_mod2(n, l, plotType); const nodeData = findApproximateNodes_mod2(plotData, plotType);
+                let yMinOriginal = d3.min(plotData, d => d.y); let yMaxOriginal = d3.max(plotData, d => d.y); let yMin = yMinOriginal; let yMax = yMaxOriginal;
+                if (Math.abs(yMin - yMax) < 1e-9) { yMin = (yMin !== 0 ? yMin - Math.abs(yMin)*0.1 : -0.1); yMax = (yMax !== 0 ? yMax + Math.abs(yMax)*0.1 : 0.1); if (Math.abs(yMin - yMax) < 1e-9) {yMin = -0.1; yMax = 0.1;} }
+                else { const padding = (yMax - yMin) * 0.10; yMin -= padding; yMax += padding; }
+                if (plotType === 'psi2' || plotType === 'rdf') { yMin = Math.min(0, yMin); if (yMaxOriginal <= 1e-9 && yMax < 0.1) yMax = 0.1; }
+                else if (plotType === 'psi') { if (yMinOriginal >= -1e-9 && yMaxOriginal > 1e-9) yMin = Math.min(yMin, -0.05); else if (yMaxOriginal <= 1e-9 && yMinOriginal < -1e-9) yMax = Math.max(yMax, 0.05); }
+                
+                let mainLabel_mod2 = '';
+                const orbitalName_mod2 = `${n}${lLabels_mod2[l] || l}`;
+                if (plotType === 'psi') mainLabel_mod2 = `R_${orbitalName_mod2}(r)`;
+                else if (plotType === 'psi2') mainLabel_mod2 = `Ψ²_${orbitalName_mod2}(r)`;
+                else if (plotType === 'rdf') mainLabel_mod2 = `RDF for ${orbitalName_mod2}`;
+
+                const datasets = [{ 
+                    label: mainLabel_mod2, 
+                    data: plotData, 
+                    borderColor: '#26a69a', 
+                    backgroundColor: 'rgba(38, 166, 154, 0.25)', 
+                    borderWidth: 2, 
+                    pointRadius: 0, 
+                    tension: 0.2,
+                    fill: true 
+                }];
+                if (nodeData.length > 0) {
+                    datasets.push({ 
+                        label: 'Nodes (Function = 0)', 
+                        data: nodeData, type: 'scatter', 
+                        pointBackgroundColor: '#e74c3c', 
+                        borderColor: '#e74c3c',
+                        pointRadius: 5, pointHoverRadius: 7, showLine: false });
+                }
+
+                const chartOptions = { responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        x: { type: 'linear', title: { display: true, text: 'Distance from nucleus (r, a₀=1)', font: {size: 14, family: document.body.style.fontFamily}, color: '#333'}, 
+                             min: 0, max: MAX_R_PLOT_mod2, 
+                             ticks: { color: '#555', font: {family: document.body.style.fontFamily} },
+                             grid: { display: true, color: 'rgba(0, 0, 0, 0.1)'}},
+                        y: { title: { display: true, text: yAxisLabel, font: {size: 14, family: document.body.style.fontFamily}, color: '#333'}, 
+                             min: yMin, max: yMax, ticks: { maxTicksLimit: 8, color: '#555', font: {family: document.body.style.fontFamily} }, 
+                             grid: { display: true, color: 'rgba(0, 0, 0, 0.1)'},
+                             grace: '5%' }
+                    },
+                    plugins: { 
+                        legend: { display: true, position: 'top', 
+                                  labels: { color: '#333', font: {size: 12, family: document.body.style.fontFamily}, usePointStyle: true, boxWidth: 10, padding: 15 } }, 
+                        tooltip: { mode: 'index', intersect: false, titleFont: {family: document.body.style.fontFamily}, bodyFont: {family: document.body.style.fontFamily} },
+                        title: { display: true, text: `${mainLabel_mod2} vs. r/a₀`, font: { size: 16, weight: 'normal', family: document.body.style.fontFamily }, color: '#333', padding: {top: 10, bottom: 10} },
+                        zoom: { pan: { enabled: true, mode: 'xy', threshold: 5, onPanComplete: function({chart}) { chart.update('none'); }},
+                                zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy', onZoomComplete: function({chart}) { chart.update('none'); }},
+                                limits: { x: {min: 0, max: MAX_R_PLOT_mod2 + 10}}}
+                    },
+                    interaction: { mode: 'index', intersect: false }};
+                if (charts_mod2[canvasId]) { 
+                    charts_mod2[canvasId].data.datasets = datasets; 
+                    charts_mod2[canvasId].options.scales.x.min = 0; 
+                    charts_mod2[canvasId].options.scales.x.max = MAX_R_PLOT_mod2; 
+                    charts_mod2[canvasId].options.scales.y.min = yMin; 
+                    charts_mod2[canvasId].options.scales.y.max = yMax;
+                    charts_mod2[canvasId].options.plugins.title.text = `${mainLabel_mod2} vs. r/a₀`;
+                    if (charts_mod2[canvasId].resetZoom) charts_mod2[canvasId].resetZoom('none'); 
+                    charts_mod2[canvasId].update('none'); 
+                }
+                else { 
+                    charts_mod2[canvasId] = new Chart(ctx, { type: 'line', data: { datasets: datasets }, options: chartOptions }); 
+                    ctx.canvas.ondblclick = () => { if(charts_mod2[canvasId] && charts_mod2[canvasId].resetZoom) charts_mod2[canvasId].resetZoom(); }; 
+                    if (charts_mod2[canvasId].resetZoom) setTimeout(() => { if(charts_mod2[canvasId]) charts_mod2[canvasId].resetZoom('none'); }, 50); 
+                }
+            }
+            function updateInfoTable_mod2(tableContainerId, n, l, plotType) { 
+                const container = moduleContainer.querySelector(`#${tableContainerId}`); if (!container) return; const orbital = `${n}${lLabels_mod2[l] || l}`; const radialNodesCount = Math.max(0, n - l - 1); const angularNodes = l; const totalNodes = n - 1; let valueAtOrigin = "N/A";
+                if (plotType === 'psi') valueAtOrigin = (l === 0) ? "Non-zero" : "Zero"; else if (plotType === 'psi2') valueAtOrigin = (l === 0) ? "Max (for s)" : "Zero"; else if (plotType === 'rdf') valueAtOrigin = "Zero (due to r² factor)"; let peaksNote = "N/A"; if (plotType === 'rdf') peaksNote = `${Math.max(0, n-l)} peak(s)`;
+                const tableHTML = `<table class="info-table"><tr><th>Property</th><th>Value</th></tr><tr><td>Selected Orbital</td><td>${orbital}</td></tr><tr><td>Principal Quantum Number (n)</td><td>${n}</td></tr><tr><td>Azimuthal Quantum Number (l)</td><td>${l}</td></tr><tr><td>Radial Nodes ($n-l-1$)</td><td>${radialNodesCount}</td></tr><tr><td>Angular Nodes ($l$)</td><td>${angularNodes}</td></tr><tr><td>Total Nodes ($n-1$)</td><td>${totalNodes}</td></tr><tr><td>Function Value at Origin ($r=0$)</td><td>${valueAtOrigin}</td></tr>${plotType === 'rdf' ? `<tr><td>Number of RDF Peaks</td><td>${peaksNote}</td></tr>` : ''}</table>`;
+                container.innerHTML = tableHTML; if (typeof renderMathInElement === "function") renderMathInElement(container, katexRenderOptions); 
+            }
+            function setupPlotControls_mod2(nSliderId, lSliderId, nValueId, lValueId, orbitalTypeId, chartId, plotType, yAxisLabel, infoTableContainerId) { 
+                const nSlider = moduleContainer.querySelector(`#${nSliderId}`); const lSlider = moduleContainer.querySelector(`#${lSliderId}`); const nValueSpan = moduleContainer.querySelector(`#${nValueId}`); const lValueSpan = moduleContainer.querySelector(`#${lValueId}`); const orbitalTypeSpan = moduleContainer.querySelector(`#${orbitalTypeId}`);
+                function updateSlidersPlotAndTable() { const n = parseInt(nSlider.value); let l = parseInt(lSlider.value); nValueSpan.textContent = n; const maxL = n - 1; lSlider.max = maxL; if (l > maxL) { l = 0; lSlider.value = l; } lValueSpan.textContent = l; orbitalTypeSpan.textContent = `${n}${lLabels_mod2[l] || l}`; if (l >= 0 && l < n) { createOrUpdateChart_mod2(chartId, n, l, plotType, yAxisLabel); updateInfoTable_mod2(infoTableContainerId, n, l, plotType); } }
+                nSlider.addEventListener('input', updateSlidersPlotAndTable); lSlider.addEventListener('input', updateSlidersPlotAndTable); updateSlidersPlotAndTable();
+            }
+            
+            const pages_mod2 = moduleContainer.querySelectorAll('.course-page');
+            const navLinks_mod2 = moduleContainer.querySelectorAll('.course-nav-link');
+            const defaultPageId_mod2 = 'page-psi-plot';
+
+            function showSubPage_mod2(pageId) { 
+                let pageActivated = false; let targetPageElement = null;
+                pages_mod2.forEach(page => { const isTargetPage = page.id === pageId; if (isTargetPage) targetPageElement = page; if (isTargetPage && !page.classList.contains('active')) { page.style.display = 'block'; page.classList.add('active'); pageActivated = true; } else if (!isTargetPage) { page.style.display = 'none'; page.classList.remove('active'); } });
+                navLinks_mod2.forEach(link => link.classList.toggle('active', link.getAttribute('data-page') === pageId));
+                if (pageActivated && targetPageElement) { if (typeof renderMathInElement === "function") renderMathInElement(targetPageElement, katexRenderOptions);
+                    if (pageId === 'page-psi-plot') setupPlotControls_mod2('mod2-n-slider-psi', 'mod2-l-slider-psi', 'mod2-n-value-psi', 'mod2-l-value-psi', 'mod2-orbital-type-psi', 'mod2-psiChart', 'psi', 'Wave Function Ψ(r)', 'mod2-psi-info-table-container');
+                    else if (pageId === 'page-psi2-plot') setupPlotControls_mod2('mod2-n-slider-psi2', 'mod2-l-slider-psi2', 'mod2-n-value-psi2', 'mod2-l-value-psi2', 'mod2-orbital-type-psi2', 'mod2-psi2Chart', 'psi2', 'Probability Density Ψ²(r)', 'mod2-psi2-info-table-container');
+                    else if (pageId === 'page-rdf-plot') setupPlotControls_mod2('mod2-n-slider-rdf', 'mod2-l-slider-rdf', 'mod2-n-value-rdf', 'mod2-l-value-rdf', 'mod2-orbital-type-rdf', 'mod2-rdfChart', 'rdf', 'RDF: r²R²(r)', 'mod2-rdf-info-table-container');
+                }
+            }
+            navLinks_mod2.forEach(link => { link.addEventListener('click', function(event) { event.preventDefault(); const pageId = this.getAttribute('data-page'); showSubPage_mod2(pageId); }); });
+            showSubPage_mod2(defaultPageId_mod2);
+        }
+
+        function initModuleAnalyzingWavefunctions() { // <<<< CORRECTED FUNCTION
+            const moduleContainer = document.getElementById('module-content-analyzing_wavefunctions');
+            const a0_val_mod4 = 1; 
+            let wavefunctionChart_mod4 = null;
+
+            function R2s_func_mod4(r_val) { if(r_val<0)return NaN;const x=r_val/a0_val_mod4;return(1-x/2)*Math.exp(-x/2);}
+            function R3s_func_mod4(r_val) { if(r_val<0)return NaN;const x=r_val/a0_val_mod4;return(1-(2*x)/3+(2*x*x)/27)*Math.exp(-x/3);}
+            function P3s_density_func_mod4(r_val) { if(r_val<0)return NaN;const R3s_val=R3s_func_mod4(r_val);return(r_val/a0_val_mod4)*(r_val/a0_val_mod4)*R3s_val*R3s_val;}
+            
+            const R2s_node_x_coords_mod4 = [2 * a0_val_mod4];
+            const R2s_extrema_x_coords_mod4 = [0, 4 * a0_val_mod4]; 
+            const R3s_nodes_x_coords_mod4 = [(9-3*Math.sqrt(3))/2*a0_val_mod4, (9+3*Math.sqrt(3))/2*a0_val_mod4].sort((a,b)=>a-b);
+            const R3s_extrema_x_coords_mod4 = [0, (15-3*Math.sqrt(7))/2*a0_val_mod4, (15+3*Math.sqrt(7))/2*a0_val_mod4].sort((a,b)=>a-b);
+            
+            const resultsAreaDiv_mod4 = moduleContainer.querySelector('#mod4-resultsArea');
+            const canvasEl_mod4 = moduleContainer.querySelector('#mod4-wavefunctionChart');
+
+            function updateResultsText_mod4(title, nodes, extremaR) { 
+                 let html = `<h3>${title} Analysis ($a_0=1$)</h3>`;
+                if (nodes && nodes.length > 0) html += `<p><strong>Nodes (function is 0) at $r/a_0$:</strong> ${nodes.map(n => n.toFixed(2)).join(', ')}</p>`; else html += `<p><strong>Nodes:</strong> None in the plotted range or not applicable.</p>`;
+                if (extremaR && extremaR.length > 0) html += `<p><strong>Extrema of $R(r)$ ($dR/dr=0$) at $r/a_0$:</strong> ${extremaR.map(e => e.toFixed(2)).join(', ')}</p>`; else html += `<p><strong>Extrema of $R(r)$:</strong> Not calculated for this plot type.</p>`;
+                resultsAreaDiv_mod4.innerHTML = html; if (typeof renderMathInElement === "function") renderMathInElement(resultsAreaDiv_mod4, katexRenderOptions);
+            }
+            function plotFunction_mod4(func, plotLabelSimple, rMaxVal, node_x_values = [], extrema_x_values = [], showExtremaDataset = true) { 
+                if (!canvasEl_mod4) return; const canvasCtx = canvasEl_mod4.getContext('2d'); const dataPoints = []; const nodeMarkers = []; const extremaMarkers = []; const stepVal = rMaxVal / 250;
+                for (let r_plot = 0; r_plot <= rMaxVal; r_plot += stepVal) dataPoints.push({ x: r_plot, y: func(r_plot) }); if (func(0) !== undefined && (dataPoints.length === 0 || dataPoints[0]?.x !== 0)) dataPoints.unshift({ x: 0, y: func(0) });
+                node_x_values.forEach(nx => { if (nx >=0 && nx <= rMaxVal) nodeMarkers.push({x: nx, y: func(nx)}); }); 
+                if (showExtremaDataset) extrema_x_values.forEach(ex => { if (ex >=0 && ex <= rMaxVal) extremaMarkers.push({x: ex, y: func(ex)}); });
+                
+                if (wavefunctionChart_mod4) wavefunctionChart_mod4.destroy();
+                
+                const datasets = [{ 
+                    label: plotLabelSimple, 
+                    data: dataPoints, 
+                    borderColor: '#26a69a', 
+                    backgroundColor: 'rgba(38, 166, 154, 0.25)', 
+                    fill: true, tension: 0.1, pointRadius: 0, borderWidth: 2 
+                }];
+
+                if (node_x_values.length > 0) {
+                    datasets.push({ 
+                        label: 'Nodes (Function = 0)', 
+                        data: nodeMarkers, 
+                        borderColor: '#e74c3c', backgroundColor: '#e74c3c', 
+                        pointRadius: 5, pointHoverRadius: 7, showLine: false, type: 'scatter' });
+                }
+                if (showExtremaDataset && extrema_x_values.length > 0) {
+                     datasets.push({ 
+                        label: 'Extrema of R(r)', 
+                        data: extremaMarkers, 
+                        borderColor: '#3498db', backgroundColor: '#3498db', 
+                        pointRadius: 5, pointHoverRadius: 7, showLine: false, type: 'scatter' });
+                }
+                wavefunctionChart_mod4 = new Chart(canvasCtx, { type: 'line', data: { datasets: datasets },
+                    options: { responsive: true, maintainAspectRatio: false, 
+                        scales: { 
+                            x: { type: 'linear', position: 'bottom', title: { display: true, text: 'r/a₀ (radius in units of Bohr radius)', font: {size: 14, family: document.body.style.fontFamily}, color: '#333' }, 
+                                 min: 0, max: rMaxVal, ticks: { autoSkipPadding: 15, color: '#555', font: {family: document.body.style.fontFamily} }, grid: { color: 'rgba(0, 0, 0, 0.1)' } }, 
+                            y: { title: { display: true, text: 'Amplitude / Probability Density', font: {size: 14, family: document.body.style.fontFamily}, color: '#333' }, 
+                                 ticks: { color: '#555', font: {family: document.body.style.fontFamily} }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, 
+                                 beginAtZero: plotLabelSimple.startsWith('P'), grace: plotLabelSimple.startsWith('P') ? '10%' : '5%' }
+                        },
+                        plugins: { 
+                            tooltip: { mode: 'index', intersect: false, titleFont: {family: document.body.style.fontFamily}, bodyFont: {family: document.body.style.fontFamily} }, 
+                            legend: { position: 'top', labels: {color: '#333', font: {size:12, family: document.body.style.fontFamily}, usePointStyle: true, boxWidth: 10, padding: 15} }, 
+                            title: { display: true, text: `${plotLabelSimple} vs. r/a₀`, font: { size: 16, weight: 'normal', family: document.body.style.fontFamily}, color: '#333', padding: {top: 10, bottom:10} }
+                        },
+                        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                    }});
+            }
+            const plotButtons_mod4 = moduleContainer.querySelectorAll('.interactive-section button');
+            function setActivePlotButton_mod4(activeBtn) { plotButtons_mod4.forEach(btn => btn.classList.remove('active')); if (activeBtn) activeBtn.classList.add('active'); }
+            
+            moduleContainer.querySelector('#mod4-plotR2sButton').addEventListener('click', (e) => { plotFunction_mod4(R2s_func_mod4, 'R₂ₛ(r)', 15*a0_val_mod4, R2s_node_x_coords_mod4, R2s_extrema_x_coords_mod4, true); updateResultsText_mod4('R₂ₛ(r)', R2s_node_x_coords_mod4, R2s_extrema_x_coords_mod4); setActivePlotButton_mod4(e.target); });
+            moduleContainer.querySelector('#mod4-plotR3sButton').addEventListener('click', (e) => { plotFunction_mod4(R3s_func_mod4, 'R₃ₛ(r)', 20*a0_val_mod4, R3s_nodes_x_coords_mod4, R3s_extrema_x_coords_mod4, true); updateResultsText_mod4('R₃ₛ(r)', R3s_nodes_x_coords_mod4, R3s_extrema_x_coords_mod4); setActivePlotButton_mod4(e.target); });
+            moduleContainer.querySelector('#mod4-plotP3sButton').addEventListener('click', (e) => { 
+                let P3s_nodes_where_R_is_zero = [...R3s_nodes_x_coords_mod4]; 
+                if (!P3s_nodes_where_R_is_zero.includes(0)) P3s_nodes_where_R_is_zero.unshift(0); 
+                P3s_nodes_where_R_is_zero = [...new Set(P3s_nodes_where_R_is_zero)].sort((a,b)=>a-b);
+                plotFunction_mod4(P3s_density_func_mod4, 'P₃ₛ(r)', 25*a0_val_mod4, P3s_nodes_where_R_is_zero, [], false); 
+                updateResultsText_mod4('P₃ₛ(r)', P3s_nodes_where_R_is_zero, null); 
+                setActivePlotButton_mod4(e.target); 
+            });
+
+            const pages_mod4 = moduleContainer.querySelectorAll('.course-page');
+            const navLinks_mod4 = moduleContainer.querySelectorAll('.course-nav-link');
+            let initialPage_mod4 = 'page-intro'; 
+            function showSubPage_mod4(pageId) { 
+                let chartNeedsInitOrUpdate = false;
+                pages_mod4.forEach(page => { const isTargetPage = page.id === pageId; page.classList.toggle('active', isTargetPage); if (isTargetPage && page.id === 'page-plotter') chartNeedsInitOrUpdate = true; });
+                navLinks_mod4.forEach(link => link.classList.toggle('active', link.getAttribute('data-page') === pageId));
+                if (chartNeedsInitOrUpdate) { const activePlotButton = moduleContainer.querySelector('.interactive-section button.active'); if (activePlotButton) activePlotButton.click(); else moduleContainer.querySelector('#mod4-plotR2sButton').click(); }
+                if (typeof renderMathInElement === "function") renderMathInElement(moduleContainer.querySelector('.course-page.active') || moduleContainer, katexRenderOptions);
+            }
+            navLinks_mod4.forEach(link => { link.addEventListener('click', function(event) { event.preventDefault(); const pageId = this.getAttribute('data-page'); showSubPage_mod4(pageId); }); });
+            showSubPage_mod4(initialPage_mod4);
+        }
+
+
+        function initModuleOrbitalShapes() {
+            const moduleContainer = document.getElementById('module-content-orbital_shapes');
+            const oldScript = document.getElementById('dynamic-module3-script');
+            if (oldScript) oldScript.remove();
+
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.id = 'dynamic-module3-script';
+            script.textContent = `
+                import * as THREE from 'three';
+                import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+                const modContainer_mod3 = document.getElementById('module-content-orbital_shapes'); 
+                const lLabelsFull_mod3 = ['s', 'p', 'd', 'f'];
+                const nSelectShape_mod3 = modContainer_mod3.querySelector('#mod3-n-select-shape');
+                const lSelectShape_mod3 = modContainer_mod3.querySelector('#mod3-l-select-shape');
+                const mlSelectShape_mod3 = modContainer_mod3.querySelector('#mod3-ml-select-shape');
+                const orbitalTypeDisplay_mod3 = modContainer_mod3.querySelector('#mod3-orbital-type-shape-display');
+                const orbitalInfoTableContainer_mod3 = modContainer_mod3.querySelector('#mod3-orbital-info-table-container');
+                const orbitalCanvas_mod3 = modContainer_mod3.querySelector('#mod3-orbital-canvas');
+                const orbitalCanvasContainer_mod3 = modContainer_mod3.querySelector('#mod3-orbital-viewer-container');
+                const orbitalPlaceholderText_mod3 = modContainer_mod3.querySelector('#mod3-orbital-placeholder-text');
+
+                let scene_mod3, camera_mod3, renderer_mod3, controls_mod3, currentOrbitalMesh_mod3;
+                const orbitalColors_mod3 = { s: 0x3498db, p: 0x2ecc71, d: 0x9b59b6, f: 0x888888, default: 0xcccccc };
+                let threeJsInitialized_mod3 = false;
+                let animationFrameId_mod3 = null;
+
+                function initThreeJs_mod3() {
+                    if (threeJsInitialized_mod3 || !orbitalCanvas_mod3 || !orbitalCanvasContainer_mod3) return;
+                    scene_mod3 = new THREE.Scene();
+                    const aspect = orbitalCanvasContainer_mod3.clientWidth / orbitalCanvasContainer_mod3.clientHeight;
+                    camera_mod3 = new THREE.PerspectiveCamera(50, aspect, 0.1, 100);
+                    camera_mod3.position.set(0, 5, 18); 
+                    renderer_mod3 = new THREE.WebGLRenderer({ canvas: orbitalCanvas_mod3, antialias: true, alpha: true });
+                    renderer_mod3.setSize(orbitalCanvasContainer_mod3.clientWidth, orbitalCanvasContainer_mod3.clientHeight);
+                    renderer_mod3.setPixelRatio(window.devicePixelRatio);
+                    renderer_mod3.setClearColor(0xf0f0f0, 1); 
+                    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); scene_mod3.add(ambientLight);
+                    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6); directionalLight.position.set(5, 10, 7.5); scene_mod3.add(directionalLight);
+                    controls_mod3 = new OrbitControls(camera_mod3, renderer_mod3.domElement);
+                    controls_mod3.enableDamping = true; controls_mod3.dampingFactor = 0.05; controls_mod3.screenSpacePanning = false; controls_mod3.minDistance = 3; controls_mod3.maxDistance = 40; controls_mod3.autoRotate = true; controls_mod3.autoRotateSpeed = 0.6;
+                    const axesHelper = new THREE.AxesHelper(5); scene_mod3.add(axesHelper);
+                    threeJsInitialized_mod3 = true;
+                    animateThreeJs_mod3();
+                    const resizeObserver = new ResizeObserver(entries => {
+                        if (!entries || !entries.length || !renderer_mod3 || !camera_mod3 || !threeJsInitialized_mod3) return;
+                        const { width, height } = entries[0].contentRect;
+                         if (width > 0 && height > 0) { renderer_mod3.setSize(width, height); camera_mod3.aspect = width / height; camera_mod3.updateProjectionMatrix(); }
+                    });
+                    if (orbitalCanvasContainer_mod3) resizeObserver.observe(orbitalCanvasContainer_mod3);
+                }
+
+                function stopThreeJsAnimation_mod3() {
+                    if (animationFrameId_mod3) {
+                        cancelAnimationFrame(animationFrameId_mod3);
+                        animationFrameId_mod3 = null;
+                    }
+                }
+
+                function animateThreeJs_mod3() {
+                    if (!threeJsInitialized_mod3 || modContainer_mod3.style.display === 'none') { 
+                        stopThreeJsAnimation_mod3();
+                        return;
+                    }
+                    animationFrameId_mod3 = requestAnimationFrame(animateThreeJs_mod3);
+                    if (controls_mod3) controls_mod3.update();
+                    if (renderer_mod3 && scene_mod3 && camera_mod3) renderer_mod3.render(scene_mod3, camera_mod3);
+                }
+
+                function createOrbitalGeometry3D_mod3(n, l, m_l) { 
+                    if (!threeJsInitialized_mod3) return;
+                    if (currentOrbitalMesh_mod3) { scene_mod3.remove(currentOrbitalMesh_mod3); if (currentOrbitalMesh_mod3.traverse) { currentOrbitalMesh_mod3.traverse((child) => { if (child.isMesh) { child.geometry.dispose(); if (Array.isArray(child.material)) child.material.forEach(mat => mat.dispose()); else child.material.dispose(); } }); } currentOrbitalMesh_mod3 = null; }
+                    orbitalPlaceholderText_mod3.style.display = 'none'; orbitalCanvas_mod3.style.display = 'block';
+                    let geometryGroup = new THREE.Group(); const baseScale = 3.0 + n * 0.4; 
+                    const material = new THREE.MeshPhongMaterial({ color: orbitalColors_mod3[lLabelsFull_mod3[l]] || orbitalColors_mod3.default, shininess: 50, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+                    const nodeMaterial = new THREE.MeshBasicMaterial({ color: 0x555555, wireframe: true, transparent: true, opacity: 0.2 });
+                    if (l === 0) { const radius = baseScale * 0.8; const sphereGeo = new THREE.SphereGeometry(radius, 32, 24); geometryGroup.add(new THREE.Mesh(sphereGeo, material)); for (let i = 1; i <= n - l - 1; i++) { const nodeRadius = radius * (i / (n - l)) * 0.7 ; if (nodeRadius > 0.1) { const nodeShellGeo = new THREE.SphereGeometry(nodeRadius, 24, 16); geometryGroup.add(new THREE.Mesh(nodeShellGeo, nodeMaterial)); } } }
+                    else if (l === 1) { const lobeLength = baseScale * 1.1; const lobeWidth = baseScale * 0.5; const lobeGeometry = new THREE.SphereGeometry(lobeWidth, 32, 16); lobeGeometry.scale(0.5, 1, 0.5); const lobe1 = new THREE.Mesh(lobeGeometry.clone(), material); const lobe2 = new THREE.Mesh(lobeGeometry.clone(), material); lobe1.position.y = lobeLength * 0.5; lobe2.position.y = -lobeLength * 0.5; geometryGroup.add(lobe1, lobe2); const planeSize = baseScale * 2.5; const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize); const angNodeMesh = new THREE.Mesh(planeGeo, nodeMaterial); if (m_l === 0) { } else if (m_l === 1) { geometryGroup.rotation.z = Math.PI / 2; angNodeMesh.rotation.y = Math.PI/2; } else if (m_l === -1) { geometryGroup.rotation.x = Math.PI / 2; angNodeMesh.rotation.x = Math.PI/2; } geometryGroup.add(angNodeMesh); }
+                    else if (l === 2) { const lobeSize = baseScale * 0.7; const dLobeGeo = new THREE.CapsuleGeometry(lobeSize * 0.3, lobeSize * 0.7, 8, 16); if (m_l === 0) { const mainLobe1 = new THREE.Mesh(dLobeGeo.clone(), material); mainLobe1.position.y = lobeSize*0.8; const mainLobe2 = new THREE.Mesh(dLobeGeo.clone(), material); mainLobe2.position.y = -lobeSize*0.8; geometryGroup.add(mainLobe1, mainLobe2); const torusGeo = new THREE.TorusGeometry(lobeSize*0.9, lobeSize*0.25, 8, 32); const torus = new THREE.Mesh(torusGeo, material.clone()); torus.rotation.x = Math.PI / 2; geometryGroup.add(torus); } else { const angleOffset = (Math.abs(m_l) === 2) ? Math.PI / 4 : 0; for (let i = 0; i < 4; i++) { const lobe = new THREE.Mesh(dLobeGeo.clone(), material); const angle = (i * Math.PI / 2) + angleOffset; lobe.position.set(Math.cos(angle) * lobeSize, Math.sin(angle) * lobeSize, 0); lobe.lookAt(0,0,0); lobe.rotateX(Math.PI/2); geometryGroup.add(lobe); } if (m_l === 1) { geometryGroup.rotation.x = Math.PI/2; geometryGroup.rotation.y = Math.PI/4; } else if (m_l === -1) { geometryGroup.rotation.y = Math.PI/2; geometryGroup.rotation.x = -Math.PI/4; } } }
+                    else if (l === 3) { orbitalCanvas_mod3.style.display = 'none'; orbitalPlaceholderText_mod3.textContent = "f-orbitals have complex shapes, typically not visualized in introductory 3D representations. Please refer to the textual description."; orbitalPlaceholderText_mod3.style.display = 'block'; }
+                    if(geometryGroup.children.length > 0 && l < 3) { currentOrbitalMesh_mod3 = geometryGroup; scene_mod3.add(currentOrbitalMesh_mod3); }
+                    else if (l < 3) { orbitalCanvas_mod3.style.display = 'none'; orbitalPlaceholderText_mod3.textContent = "Could not generate visual for this orbital."; orbitalPlaceholderText_mod3.style.display = 'block'; }
+                }
+                function updateLOptionsShape_mod3() { 
+                    const n = parseInt(nSelectShape_mod3.value); const currentLString = lSelectShape_mod3.value; lSelectShape_mod3.innerHTML = '';
+                    for (let l_val = 0; l_val < n; l_val++) { if (l_val < lLabelsFull_mod3.length) { const option = document.createElement('option'); option.value = l_val; option.textContent = \`\${l_val} (\${lLabelsFull_mod3[l_val]})\`; lSelectShape_mod3.appendChild(option); } }
+                    if (lSelectShape_mod3.querySelector(\`option[value="\${currentLString}"]\`)) lSelectShape_mod3.value = currentLString;
+                    else if (lSelectShape_mod3.options.length > 0) { if (n >= 2 && lSelectShape_mod3.querySelector('option[value="1"]')) lSelectShape_mod3.value = "1"; else lSelectShape_mod3.selectedIndex = 0; }
+                    updateMLOptionsShape_mod3();
+                }
+                function updateMLOptionsShape_mod3() { 
+                    const l = parseInt(lSelectShape_mod3.value); const currentMLString = mlSelectShape_mod3.value; mlSelectShape_mod3.innerHTML = '';
+                    if (isNaN(l) || lSelectShape_mod3.value === "") { updateOrbitalUIDisplay_mod3(); return; }
+                    for (let ml_val = -l; ml_val <= l; ml_val++) { const option = document.createElement('option'); option.value = ml_val; option.textContent = ml_val; mlSelectShape_mod3.appendChild(option); }
+                    if (mlSelectShape_mod3.querySelector(\`option[value="\${currentMLString}"]\`)) mlSelectShape_mod3.value = currentMLString;
+                    else if (mlSelectShape_mod3.options.length > 0) { const zeroOption = mlSelectShape_mod3.querySelector('option[value="0"]'); mlSelectShape_mod3.value = zeroOption ? "0" : mlSelectShape_mod3.options[0].value; }
+                    updateOrbitalUIDisplay_mod3();
+                }
+                function updateOrbitalUIDisplay_mod3() { 
+                    if (!orbitalTypeDisplay_mod3 || !orbitalInfoTableContainer_mod3) return; 
+                    const n = parseInt(nSelectShape_mod3.value); const l = parseInt(lSelectShape_mod3.value); const ml = parseInt(mlSelectShape_mod3.value);
+                    if (isNaN(n) || isNaN(l) || (l > 0 && isNaN(ml)) ) { orbitalTypeDisplay_mod3.textContent = 'N/A'; orbitalInfoTableContainer_mod3.innerHTML = '<p>Select valid quantum numbers.</p>'; if (currentOrbitalMesh_mod3 && scene_mod3) scene_mod3.remove(currentOrbitalMesh_mod3); orbitalCanvas_mod3.style.display = 'none'; orbitalPlaceholderText_mod3.textContent = "Select valid quantum numbers to see visualization."; orbitalPlaceholderText_mod3.style.display = 'block'; return; }
+                    const orbitalName = \`\${n}\${lLabelsFull_mod3[l] || \`l\${l}\`}\`; orbitalTypeDisplay_mod3.textContent = \`\${orbitalName}\` + (l > 0 ? \` (mₗ=\${ml})\` : '');
+                    if (threeJsInitialized_mod3) createOrbitalGeometry3D_mod3(n, l, ml);
+                    const radialNodes = Math.max(0, n - l - 1); const angularNodes = l; const totalNodes = n - 1;
+                    const tableHTML = \`<table class="info-table"><tr><th>Property</th><th>Value</th></tr><tr><td>Selected Orbital</td><td>\${orbitalName}\${l > 0 ? \` (mₗ=\${ml})\` : ''}</td></tr><tr><td>Principal Quantum Number (n)</td><td>\${n}</td></tr><tr><td>Azimuthal Quantum Number (l)</td><td>\${l} (\${lLabelsFull_mod3[l] || 'unknown'})</td></tr><tr><td>Magnetic Quantum Number (m<sub>l</sub>)</td><td>\${l > 0 ? ml : '0 (only for s)'}</td></tr><tr><td>Radial Nodes (n-l-1)</td><td>\${radialNodes}</td></tr><tr><td>Angular Nodes (l)</td><td>\${angularNodes}</td></tr><tr><td>Total Nodes (n-1)</td><td>\${totalNodes}</td></tr></table>\`;
+                    orbitalInfoTableContainer_mod3.innerHTML = tableHTML; if (typeof renderMathInElement === "function") renderMathInElement(orbitalInfoTableContainer_mod3, katexRenderOptions);
+                }
+
+                const pages_mod3 = modContainer_mod3.querySelectorAll('.course-page');
+                const navLinks_mod3 = modContainer_mod3.querySelectorAll('.course-nav-link');
+                const defaultPageId_mod3 = 'page-quantum-numbers';
+
+                function showSubPage_mod3(pageId) {
+                    let pageActivated = false; let targetPageElement = null;
+                    pages_mod3.forEach(page => { const isTargetPage = page.id === pageId; if (isTargetPage) targetPageElement = page; if (isTargetPage && !page.classList.contains('active')) { page.style.display = 'block'; page.classList.add('active'); pageActivated = true; } else if (!isTargetPage) { page.style.display = 'none'; page.classList.remove('active'); } });
+                    navLinks_mod3.forEach(link => link.classList.toggle('active', link.getAttribute('data-page') === pageId));
+                    if (pageActivated && targetPageElement) { if (typeof renderMathInElement === "function") renderMathInElement(targetPageElement, katexRenderOptions);
+                        if (pageId === 'page-orbital-shapes') { 
+                            if (!threeJsInitialized_mod3) initThreeJs_mod3(); else animateThreeJs_mod3(); 
+                            if (threeJsInitialized_mod3) { if (nSelectShape_mod3.value !== "2" || lSelectShape_mod3.value !== "1"){ nSelectShape_mod3.value = "2"; updateLOptionsShape_mod3(); if (lSelectShape_mod3.querySelector('option[value="1"]')) { lSelectShape_mod3.value = "1"; updateMLOptionsShape_mod3(); } else updateOrbitalUIDisplay_mod3(); } else updateOrbitalUIDisplay_mod3(); }
+                        } else { 
+                            stopThreeJsAnimation_mod3();
+                        }
+                    }
+                }
+                navLinks_mod3.forEach(link => { link.addEventListener('click', function(event) { event.preventDefault(); const pageId = this.getAttribute('data-page'); showSubPage_mod3(pageId); }); });
+                
+                if (nSelectShape_mod3 && lSelectShape_mod3 && mlSelectShape_mod3) {
+                    nSelectShape_mod3.addEventListener('change', updateLOptionsShape_mod3);
+                    lSelectShape_mod3.addEventListener('change', updateMLOptionsShape_mod3);
+                    mlSelectShape_mod3.addEventListener('change', updateOrbitalUIDisplay_mod3);
+                    nSelectShape_mod3.value = "2"; updateLOptionsShape_mod3(); 
+                    if (lSelectShape_mod3.querySelector('option[value="1"]')) { lSelectShape_mod3.value = "1"; updateMLOptionsShape_mod3(); } 
+                    else { updateOrbitalUIDisplay_mod3(); }
+                }
+                showSubPage_mod3(defaultPageId_mod3); 
+            `;
+            document.body.appendChild(script); 
+        }
+        
+        function initModuleComprehensiveQuiz() {
+            const moduleContainer = document.getElementById('module-content-comprehensive_quiz');
+            const allQuizData_mod6 = { 
+                quantum_basics: [{ question: "What does the principal quantum number ($n$) primarily determine?", options: ["Shape of the orbital", "Orientation of the orbital", "Energy level and size of the orbital", "Spin of the electron"], correctAnswer: "Energy level and size of the orbital", solution: "The principal quantum number ($n$) determines the main energy shell of an electron and is the primary factor in determining the size of the orbital. Higher $n$ means higher energy and a larger orbital." }, { question: "For an orbital with $l=2$, what are the possible values of $m_l$?", options: ["0, 1, 2", "-1, 0, +1", "-2, -1, 0, +1, +2", "Only 0"], correctAnswer: "-2, -1, 0, +1, +2", solution: "The magnetic quantum number ($m_l$) can take integer values from $-l$ to $+l$, including 0. For $l=2$ (a d orbital), $m_l$ can be -2, -1, 0, +1, or +2, corresponding to the five degenerate d orbitals." }, { question: "How many radial nodes does a 4s orbital possess?", options: ["0", "1", "2", "3"], correctAnswer: "3", solution: "The number of radial nodes is given by $n-l-1$. For a 4s orbital, $n=4$ and $l=0$. So, radial nodes = $4-0-1 = 3$." }],
+                bonding_mot: [{ question: "According to Molecular Orbital Theory, what is formed when two atomic orbitals combine out of phase (destructively)?", options: ["A bonding molecular orbital", "An antibonding molecular orbital", "A non-bonding molecular orbital", "Two hybrid orbitals"], correctAnswer: "An antibonding molecular orbital", solution: "Destructive interference (out-of-phase combination) of atomic orbitals leads to the formation of an antibonding molecular orbital. This MO has higher energy than the parent AOs and typically has a nodal plane between the nuclei." }, { question: "What is the bond order of the N₂ molecule according to MOT?", options: ["1", "1.5", "2", "3"], correctAnswer: "3", solution: "Nitrogen (N) has 7 electrons. N₂ has 14 electrons. The MO configuration is $(\sigma_{2s})^2 (\sigma_{2s}^*)^2 (\pi_{2p})^4 (\sigma_{2p})^2$. <br/>Bonding electrons ($N_b$) = 2 ($\sigma_{2s}$) + 4 ($\pi_{2p}$) + 2 ($\sigma_{2p}$) = 8. <br/>Antibonding electrons ($N_a$) = 2 ($\sigma_{2s}^*$). <br/>Bond Order = $1/2 (N_b - N_a) = 1/2 (8 - 2) = 1/2 (6) = 3$. A triple bond." }],
+                jee_advanced: [{ paragraph: "The ground state energy of hydrogen atom is $-13.6 \\text{ eV}$. Consider an electronic state $\Psi$ of $\\text{He}^+$ whose energy, azimuthal quantum number and magnetic quantum number are $-3.4 \\text{ eV}$, $2$ and $0$ respectively.", question: "Which of the following statements is true for the state $\Psi$?", options: ["The state $\Psi$ is a 4d orbital.","The state $\Psi$ has 2 radial nodes.","The state $\Psi$ has 1 angular node.","The principal quantum number for state $\Psi$ is $n=3$."], correctAnswer: "The state $\Psi$ is a 4d orbital.", solution: `For a hydrogen-like species, $E_n = -13.6 \frac{Z^2}{n^2} \\text{ eV}$. For $\\text{He}^+$, $Z=2$. Given $E = -3.4 \\text{ eV}$. So, $-3.4 = -13.6 \frac{2^2}{n^2} \Rightarrow n^2 = \frac{-13.6 \\times 4}{-3.4} = 16 \Rightarrow n=4$. Given $l=2$. An orbital with $n=4, l=2$ is a 4d orbital. Radial nodes = $n-l-1 = 4-2-1 = 1$. Angular nodes = $l=2$.` }, { question: "Which of the following statements is INCORRECT regarding a 3p orbital?", options: ["It has $n=3$ and $l=1$.","It possesses one radial node.","It possesses two angular nodes.","There are three such degenerate 3p orbitals."], correctAnswer: "It possesses two angular nodes.", solution: "For a 3p orbital: $n=3, l=1$. Radial nodes = $n-l-1 = 3-1-1 = 1$. Angular nodes = $l = 1$. For $l=1$, $m_l = -1, 0, +1$, so there are 3 degenerate p orbitals. Thus, the statement 'It possesses two angular nodes' is INCORRECT." }, { question: "The maximum number of electrons that can have principal quantum number, $n=3$, and spin quantum number, $m_s = -1/2$, is:", options: ["18", "9", "32", "2"], correctAnswer: "9", solution: "For $n=3$, $l$ can be $0, 1, 2$. Orbitals: $l=0 \rightarrow 1$ (s); $l=1 \rightarrow 3$ (p); $l=2 \rightarrow 5$ (d). Total orbitals = $1+3+5=9$. Each orbital can hold one electron with $m_s = -1/2$. So, 9 such electrons." }]
+            };
+            let currentQuizSection_mod6 = null; let currentQuestionIndex_mod6 = 0; let score_mod6 = 0; let questionsOrder_mod6 = []; 
+            const quizAppWrapper_mod6 = moduleContainer.querySelector('#mod6-quiz-app-wrapper');
+            const sectionNavLinks_mod6 = moduleContainer.querySelectorAll('.quiz-section-link');
+            function shuffleArray_mod6(array) { for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];} return array; }
+            function displayQuestion_mod6() { 
+                const sectionElement = quizAppWrapper_mod6.querySelector(`#quiz-section-${currentQuizSection_mod6}`); const quizContentArea = sectionElement.querySelector('.quiz-content-area'); const nextButton = sectionElement.querySelector('.next-question-btn'); const resultsButton = sectionElement.querySelector('.show-results-btn'); const restartButton = sectionElement.querySelector('.restart-quiz-btn');
+                quizContentArea.innerHTML = ''; if(nextButton) nextButton.style.display = 'none'; if(resultsButton) resultsButton.style.display = 'none'; if(restartButton) restartButton.style.display = 'none';
+                if (currentQuestionIndex_mod6 >= questionsOrder_mod6.length) { displayResults_mod6(sectionElement); return; }
+                const questionData = questionsOrder_mod6[currentQuestionIndex_mod6]; const questionContainer = document.createElement('div'); questionContainer.className = 'quiz-question-container';
+                if (questionData.paragraph) { const paragraphElement=document.createElement('div');paragraphElement.className='question-paragraph';paragraphElement.innerHTML=questionData.paragraph;questionContainer.appendChild(paragraphElement); }
+                const questionTextElement = document.createElement('p'); questionTextElement.className='question-text';questionTextElement.innerHTML=`<strong>Question ${currentQuestionIndex_mod6+1}:</strong> ${questionData.question}`;questionContainer.appendChild(questionTextElement);
+                const optionsList = document.createElement('ul'); optionsList.className='quiz-options';const shuffledOptions=shuffleArray_mod6([...questionData.options]);
+                shuffledOptions.forEach(option=>{const listItem=document.createElement('li');const button=document.createElement('button');button.innerHTML=option;button.dataset.optionValue=option;button.onclick=()=>handleAnswer_mod6(button,questionData.correctAnswer,questionData.solution,sectionElement);listItem.appendChild(button);optionsList.appendChild(listItem);});
+                questionContainer.appendChild(optionsList); quizContentArea.appendChild(questionContainer); if (typeof renderMathInElement === "function") renderMathInElement(quizContentArea, katexRenderOptions);
+            }
+            function handleAnswer_mod6(selectedButton, correctAnswer, solutionText, sectionElement) { 
+                const quizContentArea = sectionElement.querySelector('.quiz-content-area'); const nextButton = sectionElement.querySelector('.next-question-btn'); const resultsButton = sectionElement.querySelector('.show-results-btn'); const allOptionButtons = quizContentArea.querySelectorAll('.quiz-options button');
+                allOptionButtons.forEach(btn => { btn.disabled=!0;if(btn.dataset.optionValue===correctAnswer)btn.classList.add('correct');else if(btn===selectedButton)btn.classList.add('incorrect'); });
+                selectedButton.classList.add('selected'); const isCorrect = selectedButton.dataset.optionValue === correctAnswer; if (isCorrect) score_mod6++;
+                const solutionDiv = document.createElement('div'); solutionDiv.className='solution-area';const feedbackTextElement=document.createElement('p');feedbackTextElement.classList.add('feedback-text');
+                if(isCorrect){feedbackTextElement.textContent="Correct!";feedbackTextElement.classList.add('correct')}else{const correctAnswerDisplay=document.createElement('div');correctAnswerDisplay.innerHTML=correctAnswer;feedbackTextElement.innerHTML="Incorrect. The correct answer is: ";feedbackTextElement.appendChild(correctAnswerDisplay);feedbackTextElement.classList.add('incorrect')}
+                solutionDiv.appendChild(feedbackTextElement);const solutionHeader=document.createElement('h4');solutionHeader.textContent='Detailed Solution:';solutionDiv.appendChild(solutionHeader);const solutionParagraph=document.createElement('div');solutionParagraph.innerHTML=solutionText;solutionDiv.appendChild(solutionParagraph);
+                quizContentArea.querySelector('.quiz-question-container').appendChild(solutionDiv); if (typeof renderMathInElement === "function") renderMathInElement(solutionDiv, katexRenderOptions);
+                if (currentQuestionIndex_mod6 < questionsOrder_mod6.length - 1) nextButton.style.display = 'inline-block'; else resultsButton.style.display = 'inline-block';
+            }
+            function displayNextQuestion_mod6() { currentQuestionIndex_mod6++; displayQuestion_mod6(); }
+            function displayResults_mod6(sectionElement) { 
+                const quizContentArea = sectionElement.querySelector('.quiz-content-area'); const restartButton = sectionElement.querySelector('.restart-quiz-btn');
+                quizContentArea.innerHTML = `<div class="quiz-score-container"><h3>Section Complete!</h3><p>Your score for this section: ${score_mod6} out of ${questionsOrder_mod6.length}</p><p>Percentage: ${((score_mod6 / questionsOrder_mod6.length) * 100).toFixed(1)}%</p></div>`;
+                if(restartButton) restartButton.style.display = 'inline-block'; if (typeof renderMathInElement === "function") renderMathInElement(quizContentArea, katexRenderOptions);
+            }
+            function startQuizForSection_mod6(sectionId) { 
+                if (!allQuizData_mod6[sectionId]) { const sectionElement = quizAppWrapper_mod6.querySelector(`#quiz-section-${sectionId}`); if(sectionElement) { const quizContentArea = sectionElement.querySelector('.quiz-content-area'); if(quizContentArea) quizContentArea.innerHTML = "<p>Error: Quiz data for this section not found.</p>";} return; }
+                currentQuizSection_mod6 = sectionId; currentQuestionIndex_mod6 = 0; score_mod6 = 0; questionsOrder_mod6 = shuffleArray_mod6([...allQuizData_mod6[sectionId]]); 
+                const sectionElement = quizAppWrapper_mod6.querySelector(`#quiz-section-${currentQuizSection_mod6}`); const nextButton = sectionElement.querySelector('.next-question-btn'); const resultsButton = sectionElement.querySelector('.show-results-btn'); const restartButton = sectionElement.querySelector('.restart-quiz-btn');
+                if(nextButton) nextButton.onclick = displayNextQuestion_mod6; if(resultsButton) resultsButton.onclick = () => displayResults_mod6(sectionElement); if(restartButton) restartButton.onclick = () => startQuizForSection_mod6(currentQuizSection_mod6);
+                displayQuestion_mod6();
+            }
+            function showQuizSectionPage_mod6(sectionId) { 
+                quizAppWrapper_mod6.querySelectorAll('.quiz-section-page').forEach(page => page.classList.toggle('active', page.id === `quiz-section-${sectionId}`));
+                sectionNavLinks_mod6.forEach(link => link.classList.toggle('active', link.dataset.section === sectionId));
+                if (sectionId && sectionId !== "welcome" && allQuizData_mod6[sectionId]) startQuizForSection_mod6(sectionId);
+                else if (sectionId === "welcome") { /* Welcome message is already static */ }
+                else if (sectionId) { const sectionElement = quizAppWrapper_mod6.querySelector(`#quiz-section-${sectionId}`); if(sectionElement) { const quizContentArea = sectionElement.querySelector('.quiz-content-area'); if(quizContentArea) quizContentArea.innerHTML = "<p>This quiz section is under construction.</p>"; } }
+            }
+            sectionNavLinks_mod6.forEach(link => { link.addEventListener('click', function(event) { event.preventDefault(); const sectionId = this.dataset.section; showQuizSectionPage_mod6(sectionId); }); });
+            showQuizSectionPage_mod6('welcome'); // Show welcome initially for quiz module
+        }
+
+    </script>
+</body>
+</html>
